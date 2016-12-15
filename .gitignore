@@ -7,3 +7,4 @@
 *.xccheckout
 project.xcworkspace/
 xcuserdata/
+Carthage

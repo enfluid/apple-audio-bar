@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="hgr-O3-lor">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="Mxa-Ki-J7E">
+            <objects>
+                <viewController id="hgr-O3-lor" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="ltn-Qy-f5m"/>
+                        <viewControllerLayoutGuide type="bottom" id="EDV-GA-o62"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="AhU-XC-WTM">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="O55-3z-Gus">
+                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="pZ0-lp-jcN"/>
+                                </constraints>
+                                <connections>
+                                    <segue destination="BYZ-38-t0r" kind="embed" id="TJg-TU-uh3"/>
+                                </connections>
+                            </containerView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="EDV-GA-o62" firstAttribute="top" secondItem="O55-3z-Gus" secondAttribute="bottom" id="Vam-dg-Zm5"/>
+                            <constraint firstItem="O55-3z-Gus" firstAttribute="leading" secondItem="AhU-XC-WTM" secondAttribute="leading" id="XE2-sA-uof"/>
+                            <constraint firstAttribute="trailing" secondItem="O55-3z-Gus" secondAttribute="trailing" id="ddF-rd-5vX"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VNi-K1-8dP" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-450.39999999999998" y="58.920539730134934"/>
+        </scene>
+        <!--Audio Bar View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="AudioBarViewController" customModule="AudioBarApp" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="h2l-yO-BNi">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                                <items/>
+                            </toolbar>
+                            <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lE7-Lw-DJA">
+                                <rect key="frame" x="116" y="0.0" width="143" height="44"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KAD-gh-z4d">
+                                        <rect key="frame" x="0.0" y="0.0" width="44" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="CLw-ch-7Hc"/>
+                                            <constraint firstAttribute="width" priority="999" constant="44" id="Qgw-vD-mhU"/>
+                                        </constraints>
+                                        <state key="normal" image="15 Seconds Back Button"/>
+                                        <connections>
+                                            <action selector="userDidTapSeekBackButton" destination="BYZ-38-t0r" eventType="touchUpInside" id="dfp-Nb-Ike"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pPP-F4-JOP">
+                                        <rect key="frame" x="44" y="0.0" width="55" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="55" id="8ak-0z-Mht"/>
+                                            <constraint firstAttribute="height" constant="44" id="kfN-dR-oqs"/>
+                                        </constraints>
+                                        <inset key="imageEdgeInsets" minX="2" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                        <state key="normal" image="Play Button"/>
+                                        <connections>
+                                            <action selector="userDidTapPlayPauseButton" destination="BYZ-38-t0r" eventType="touchUpInside" id="2CG-nn-hko"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hGP-A7-7Ta">
+                                        <rect key="frame" x="99" y="0.0" width="44" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" priority="999" constant="44" id="Kcf-Ml-XBZ"/>
+                                            <constraint firstAttribute="height" constant="44" id="VVl-MN-faR"/>
+                                        </constraints>
+                                        <state key="normal" image="15 Seconds Forward Button"/>
+                                        <connections>
+                                            <action selector="userDidTapSeekForwardButton" destination="BYZ-38-t0r" eventType="touchUpInside" id="bTQ-53-tv6"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="nUe-4Q-lqU">
+                                <rect key="frame" x="339" y="12" width="20" height="20"/>
+                            </activityIndicatorView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ei9-VN-Jjt">
+                                <rect key="frame" x="359" y="0.0" width="0.0" height="44"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="Ez6-j5-wWD">
+                                <rect key="frame" x="16" y="0.0" width="44" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="h91-Ob-bGZ"/>
+                                    <constraint firstAttribute="width" constant="44" id="vEv-bv-dwh"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="lE7-Lw-DJA" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="0Js-9A-SLR"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="h2l-yO-BNi" secondAttribute="bottom" id="3j6-Xa-Up0"/>
+                            <constraint firstItem="Ez6-j5-wWD" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="7ya-Md-Plz"/>
+                            <constraint firstItem="h2l-yO-BNi" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="DO6-NR-Ne2"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="Ei9-VN-Jjt" secondAttribute="trailing" id="HVL-Ix-c2h"/>
+                            <constraint firstItem="lE7-Lw-DJA" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="HuF-Fn-38e"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="nUe-4Q-lqU" secondAttribute="trailing" id="OxF-7n-zAU"/>
+                            <constraint firstItem="Ez6-j5-wWD" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="W6s-aW-XE7"/>
+                            <constraint firstItem="Ei9-VN-Jjt" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="Wsa-YP-yXl"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="Ei9-VN-Jjt" secondAttribute="bottom" id="Wur-sq-LaD"/>
+                            <constraint firstItem="h2l-yO-BNi" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="Xc6-GG-21O"/>
+                            <constraint firstAttribute="trailing" secondItem="h2l-yO-BNi" secondAttribute="trailing" id="diF-CC-xh1"/>
+                            <constraint firstItem="nUe-4Q-lqU" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="ytp-P1-brc"/>
+                        </constraints>
+                    </view>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="375" height="44"/>
+                    <connections>
+                        <outlet property="audioRouteView" destination="Ez6-j5-wWD" id="6b7-vv-OhE"/>
+                        <outlet property="loadingIndicator" destination="nUe-4Q-lqU" id="RIa-wu-KjY"/>
+                        <outlet property="playPauseButton" destination="pPP-F4-JOP" id="2Dn-aS-Szz"/>
+                        <outlet property="seekBackButton" destination="KAD-gh-z4d" id="pvj-jy-tUy"/>
+                        <outlet property="seekForwardButton" destination="hGP-A7-7Ta" id="GUC-Jz-XGU"/>
+                        <outlet property="timeLabel" destination="Ei9-VN-Jjt" id="rIU-5L-1TR"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="289" y="58"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="15 Seconds Back Button" width="20" height="22"/>
+        <image name="15 Seconds Forward Button" width="20" height="22"/>
+        <image name="Play Button" width="18" height="22"/>
+    </resources>
+</document>
