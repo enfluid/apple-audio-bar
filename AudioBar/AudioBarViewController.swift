@@ -96,7 +96,8 @@ public final class AudioBarViewController: UIViewController, Elm.Delegate {
             }
 
         case .showAlert(text: let text, button: let button):
-            let alertController = UIAlertController(title: text, message: nil, preferredStyle: .alert)
+            let alertTitle = NSLocalizedString(text, comment: "")
+            let alertController = UIAlertController(title: alertTitle, message: nil, preferredStyle: .alert)
             alertController.addAction(UIAlertAction(title: button, style: .default, handler: nil))
             present(alertController, animated: true)
 
