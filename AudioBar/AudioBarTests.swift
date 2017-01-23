@@ -17,9 +17,26 @@ class AudioBarTests: XCTestCase, Tests {
 
     // MARK: Update
 
-    func testLoadTrack() {
-        let update = expectUpdate(for: .prepareToLoad(URL.arbitrary), model: .waitingForURL)
-        expect(update?.model, .readyToLoadURL(URL.arbitrary))
+    func testPrepareToLoad1() {
+        let update = expectUpdate(for: .prepareToLoad(URL.foo), model: .waitingForURL)
+        expect(update?.model, .readyToLoadURL(URL.foo))
+    }
+
+    func testPrepareToLoad2() {
+        let update = expectUpdate(for: .prepareToLoad(URL.foo), model: .readyToLoadURL(URL.bar))
+        expect(update?.model, .readyToLoadURL(URL.foo))
+    }
+
+    func testPrepareToLoad3() {
+        let update = expectUpdate(for: .prepareToLoad(URL.foo), model: .waitingForPlayerToBecomeReadyToPlayURL(URL.bar))
+        expect(update?.model, .readyToLoadURL(URL.foo))
+        expect(update?.command, .player(.loadURL(nil)))
+    }
+
+    func testPrepareToLoad4() {
+        let update = expectUpdate(for: .prepareToLoad(URL.foo), model: .readyToPlay(.init()))
+        expect(update?.model, .readyToLoadURL(URL.foo))
+        expect(update?.command, .player(.loadURL(nil)))
     }
 
     func testPlayerDidBecomeReadyToPlay() {
@@ -30,38 +47,38 @@ class AudioBarTests: XCTestCase, Tests {
 
     func testPlayerDidBecomeReadyToPlayUnexpectedly1() {
         let failure = expectFailure(for: .playerDidBecomeReadyToPlay(withDuration: 0), model: .waitingForURL)
-        expect(failure, .genericError)
+        expect(failure, .notWaitingToBecomeReadyToPlay)
     }
 
     func testPlayerDidBecomeReadyToPlayUnexpectedly2() {
         let failure = expectFailure(for: .playerDidBecomeReadyToPlay(withDuration: 0), model: .readyToLoadURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notWaitingToBecomeReadyToPlay)
     }
 
     func testPlayerDidBecomeReadyToPlayUnexpectedly3() {
         let failure = expectFailure(for: .playerDidBecomeReadyToPlay(withDuration: 0), model: .readyToPlay(.init()))
-        expect(failure, .genericError)
+        expect(failure, .notWaitingToBecomeReadyToPlay)
     }
 
     func testPlayerDidFailToBecomeReady() {
         let update = expectUpdate(for: .playerDidFailToBecomeReady, model: .waitingForPlayerToBecomeReadyToPlayURL(URL.arbitrary))
         expect(update?.model, .readyToLoadURL(URL.arbitrary))
-        expect(update?.commands, [.player(.reset), .showAlert(text: "Unable to load media", button: "OK")])
+        expect(update?.command, .showAlert(text: "Unable to load media", button: "OK"))
     }
 
     func testPlayerDidFailToBecomeReadyUnexpectedly1() {
         let failure = expectFailure(for: .playerDidFailToBecomeReady, model: .waitingForURL)
-        expect(failure, .genericError)
+        expect(failure, .notWaitingToBecomeReadyToPlay)
     }
 
     func testPlayerDidFailToBecomeReadyUnexpectedly2() {
         let failure = expectFailure(for: .playerDidFailToBecomeReady, model: .readyToLoadURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notWaitingToBecomeReadyToPlay)
     }
 
     func testPlayerDidFailToBecomeReadyUnexpectedly3() {
         let failure = expectFailure(for: .playerDidFailToBecomeReady, model: .readyToPlay(.init()))
-        expect(failure, .genericError)
+        expect(failure, .notWaitingToBecomeReadyToPlay)
     }
 
     func testPlayerDidUpdateCurrentTime1() {
@@ -76,17 +93,17 @@ class AudioBarTests: XCTestCase, Tests {
 
     func testPlayerDidUpdateCurrentTimeUnexpectedly1() {
         let failure = expectFailure(for: .playerDidUpdateCurrentTime(0), model: .waitingForURL)
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testPlayerDidUpdateCurrentTimeUnexpectedly2() {
         let failure = expectFailure(for: .playerDidUpdateCurrentTime(0), model: .readyToLoadURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testPlayerDidUpdateCurrentTimeUnexpectedly3() {
         let failure = expectFailure(for: .playerDidUpdateCurrentTime(0), model: .waitingForPlayerToBecomeReadyToPlayURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testPlayerDidPlayToEnd() {
@@ -96,34 +113,34 @@ class AudioBarTests: XCTestCase, Tests {
 
     func testPlayerDidPlayToEndUnexpectedly1() {
         let failure = expectFailure(for: .playerDidPlayToEnd, model: .readyToPlay(.init(isPlaying: false)))
-        expect(failure, .genericError)
+        expect(failure, .notPlaying)
     }
 
     func testPlayerDidPlayToEndUnexpectedly2() {
         let failure = expectFailure(for: .playerDidPlayToEnd, model: .waitingForURL)
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testPlayerDidPlayToEndUnexpectedly3() {
         let failure = expectFailure(for: .playerDidPlayToEnd, model: .readyToLoadURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testPlayerDidPlayToEndUnexpectedly4() {
         let failure = expectFailure(for: .playerDidPlayToEnd, model: .waitingForPlayerToBecomeReadyToPlayURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testSeekBack1() {
         let update = expectUpdate(for: .seekBack, model: .readyToPlay(.init(duration: 60, currentTime: 60)))
-        expect(update?.model, .readyToPlay(.init(duration: 60, currentTime: 60 - 15)))
-        expect(update?.command, .player(.setCurrentTime(60 - 15)))
+        expect(update?.model, .readyToPlay(.init(duration: 60, currentTime: 60 - AudioBar.Model.seekInterval)))
+        expect(update?.command, .player(.setCurrentTime(60 - AudioBar.Model.seekInterval)))
     }
 
     func testSeekBack2() {
         let update = expectUpdate(for: .seekBack, model: .readyToPlay(.init(duration: 60, currentTime: 15)))
-        expect(update?.command, .player(.setCurrentTime(15 - 15)))
-        expect(update?.model, .readyToPlay(.init(duration: 60, currentTime: 15 - 15)))
+        expect(update?.command, .player(.setCurrentTime(15 - AudioBar.Model.seekInterval)))
+        expect(update?.model, .readyToPlay(.init(duration: 60, currentTime: 15 - AudioBar.Model.seekInterval)))
     }
 
     func testSeekBackNearBeginning1() {
@@ -140,41 +157,43 @@ class AudioBarTests: XCTestCase, Tests {
 
     func testSeekBackUnexpectedly1() {
         let failure = expectFailure(for: .seekBack, model: .waitingForURL)
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testSeekBackUnexpectedly2() {
         let failure = expectFailure(for: .seekBack, model: .readyToLoadURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testSeekBackUnexpectedly3() {
         let failure = expectFailure(for: .seekBack, model: .waitingForPlayerToBecomeReadyToPlayURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testSeekForward1() {
         let update = expectUpdate(for: .seekForward, model: .readyToPlay(.init(duration: 60, currentTime: 0)))
-        expect(update?.model, .readyToPlay(.init(duration: 60, currentTime: 0 + 15)))
-        expect(update?.command, .player(.setCurrentTime(0 + 15)))
+        expect(update?.model, .readyToPlay(.init(duration: 60, currentTime: 0 + AudioBar.Model.seekInterval)))
+        expect(update?.command, .player(.setCurrentTime(0 + AudioBar.Model.seekInterval)))
     }
 
     func testSeekForward2() {
         let update = expectUpdate(for: .seekForward, model: .readyToPlay(.init(duration: 60, currentTime: 1)))
-        expect(update?.model, .readyToPlay(.init(duration: 60, currentTime: 1 + 15)))
-        expect(update?.command, .player(.setCurrentTime(1 + 15)))
+        expect(update?.model, .readyToPlay(.init(duration: 60, currentTime: 1 + AudioBar.Model.seekInterval)))
+        expect(update?.command, .player(.setCurrentTime(1 + AudioBar.Model.seekInterval)))
     }
 
     func testSeekForwardNearEndWhenPlaying1() {
         let update = expectUpdate(for: .seekForward, model: .readyToPlay(.init(isPlaying: true, duration: 60, currentTime: 59)))
         expect(update?.model, .readyToPlay(.init(isPlaying: false, duration: 60, currentTime: 60)))
-        expect(update?.commands, [.player(.setCurrentTime(60)), .player(.pause)])
+        expect(update?.commands[0], .player(.setCurrentTime(60)))
+        expect(update?.commands[1], .player(.pause))
     }
 
     func testSeekForwardNearEndWhenPlaying2() {
         let update = expectUpdate(for: .seekForward, model: .readyToPlay(.init(isPlaying: true, duration: 60, currentTime: 58)))
         expect(update?.model, .readyToPlay(.init(isPlaying: false, duration: 60, currentTime: 60)))
-        expect(update?.commands, [.player(.setCurrentTime(60)), .player(.pause)])
+        expect(update?.commands[0], .player(.setCurrentTime(60)))
+        expect(update?.commands[1], .player(.pause))
     }
 
     func testSeekForwardNearEndWhenPaused1() {
@@ -189,17 +208,17 @@ class AudioBarTests: XCTestCase, Tests {
 
     func testSeekForwardUnexpectedly1() {
         let failure = expectFailure(for: .seekForward, model: .waitingForURL)
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testSeekForwardUnexpectedly2() {
         let failure = expectFailure(for: .seekForward, model: .readyToLoadURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testSeekForwardUnexpectedly3() {
         let failure = expectFailure(for: .seekForward, model: .waitingForPlayerToBecomeReadyToPlayURL(URL.arbitrary))
-        expect(failure, .genericError)
+        expect(failure, .notReadyToPlay)
     }
 
     func testTogglePlayWhenReadyToLoadURL() {
@@ -223,12 +242,12 @@ class AudioBarTests: XCTestCase, Tests {
     func testTogglePlayWhenWaitingForPlayerToBecomeReadyToPlayURL() {
         let update = expectUpdate(for: .togglePlay, model: .waitingForPlayerToBecomeReadyToPlayURL(URL.arbitrary))
         expect(update?.model, .readyToLoadURL(URL.arbitrary))
-        expect(update?.command, .player(.reset))
+        expect(update?.command, .player(.loadURL(nil)))
     }
 
     func testTogglePlayUnexpectedly() {
         let failure = expectFailure(for: .togglePlay, model: .waitingForURL)
-        expect(failure, .genericError)
+        expect(failure, .noURL)
     }
 
     // MARK: View
@@ -387,6 +406,10 @@ extension AudioBar.Model.ReadyState {
 }
 
 extension URL {
+
+    static let foo = URL(string: "foo")!
+    static let bar = URL(string: "bar")!
+
     static var arbitrary: URL {
         return URL(string: "foo")!
     }
