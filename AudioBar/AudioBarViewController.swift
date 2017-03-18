@@ -3,16 +3,13 @@ import AVFoundation
 import MediaPlayer
 import Elm
 
-public final class AudioBarViewController: UIViewController, Elm.Delegate {
+public final class AudioBarViewController: UIViewController, StoreDelegate {
 
-    public typealias Module = AudioBar
-
-    typealias Model = AudioBar.Model
-    typealias View = AudioBar.View
-
-    private let program = Module.makeProgram(flags: .init())
+    private lazy var store: Store<AudioBar> = AudioBar.makeStore(delegate: self, seed: .init())
     private let player = AVPlayer()
     private let volumeView = MPVolumeView()
+    private let remoteCommandCenter = MPRemoteCommandCenter.shared()
+    private let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
 
     @IBOutlet private var playPauseButton: UIButton!
     @IBOutlet private var seekBackButton: UIButton!
@@ -22,32 +19,34 @@ public final class AudioBarViewController: UIViewController, Elm.Delegate {
     @IBOutlet private var audioRouteView: UIView!
 
     @IBAction func userDidTapPlayPauseButton() {
-        program.dispatch(.togglePlay)
+        let message = store.view.playPauseButtonEvent
+        store.dispatch(.playPauseButton(message))
     }
 
     @IBAction func userDidTapSeekForwardButton() {
-        program.dispatch(.seekForward)
+        store.dispatch(.userDidTapSeekForwardButton)
     }
 
     @IBAction func userDidTapSeekBackButton() {
-        program.dispatch(.seekBack)
+        store.dispatch(.userDidTapSeekBackButton)
     }
 
-    public func loadURL(url: URL) {
-        program.dispatch(.prepareToLoad(url))
+    public func loadURL(url: URL?) {
+        store.dispatch(.prepareToLoad(url))
     }
 
     public override func viewDidLoad() {
         super.viewDidLoad()
+        nowPlayingInfoCenter.nowPlayingInfo = [:]
+        configureCommandCenterCommands()
         volumeView.showsVolumeSlider = false
         volumeView.setRouteButtonImage(loadImage(withName: "AirPlay Icon"), for: .normal)
         audioRouteView.addSubview(volumeView)
         timeLabel.font = UIFont.monospacedDigitSystemFont(ofSize: timeLabel.font.pointSize, weight: UIFontWeightRegular)
-        program.setDelegate(self)
-        player.addPeriodicTimeObserver(forInterval: CMTime(timeInterval: 0.1), queue: nil) { [weak player, weak program] time in
+        player.addPeriodicTimeObserver(forInterval: CMTime(timeInterval: 0.1), queue: nil) { [weak player, weak store] _ in
             guard player?.currentItem?.status == .readyToPlay else { return }
             guard let currentTime = player?.currentTime().timeInterval else { return }
-            program?.dispatch(.playerDidUpdateCurrentTime(currentTime))
+            store?.dispatch(.playerDidUpdateCurrentTime(currentTime))
         }
     }
 
@@ -56,11 +55,11 @@ public final class AudioBarViewController: UIViewController, Elm.Delegate {
         volumeView.frame = audioRouteView.bounds
     }
 
-    public func program(_ program: Program<Module>, didUpdate view: Module.View) {
+    public func store(_ store: Store<AudioBar>, didUpdate view: AudioBar.View) {
         var playPauseButtonImage: UIImage {
-            switch view.playPauseButtonMode {
-            case .play: return loadImage(withName: "Play Button")
-            case .pause: return loadImage(withName: "Pause Button")
+            switch view.playPauseButtonEvent {
+            case .userDidTapPlayButton: return loadImage(withName: "Play Button")
+            case .userDidTapPauseButton: return loadImage(withName: "Pause Button")
             }
         }
         playPauseButton.setImage(playPauseButtonImage, for: .normal)
@@ -71,12 +70,21 @@ public final class AudioBarViewController: UIViewController, Elm.Delegate {
         seekForwardButton.isEnabled = view.isSeekForwardButtonEnabled
         timeLabel.text = view.playbackTime
         loadingIndicator.isHidden = !view.isLoadingIndicatorVisible
+        remoteCommandCenter.togglePlayPauseCommand.isEnabled = view.isPlayPauseButtonEnabled
+        remoteCommandCenter.playCommand.isEnabled = view.isPlayCommandEnabled
+        remoteCommandCenter.pauseCommand.isEnabled = view.isPauseCommandEnabled
+        remoteCommandCenter.skipForwardCommand.isEnabled = view.isSeekForwardButtonEnabled
+        remoteCommandCenter.skipBackwardCommand.isEnabled = view.isSeekBackButtonEnabled
+        remoteCommandCenter.skipForwardCommand.preferredIntervals = [.init(value: view.seekInterval)]
+        remoteCommandCenter.skipBackwardCommand.preferredIntervals = [.init(value: view.seekInterval)]
+        nowPlayingInfoCenter.setPlaybackDuration(view.playbackDuration)
+        nowPlayingInfoCenter.setElapsedPlaybackTime(view.elapsedPlaybackTime)
     }
 
-    public func program(_ program: Program<Module>, didEmit command: Module.Command) {
-        switch command {
-        case .player(let command):
-            switch command {
+    public func store(_ store: Store<AudioBar>, didRequest action: AudioBar.Action) {
+        switch action {
+        case .player(let action):
+            switch action {
             case .loadURL(let url):
                 if let playerItem = player.currentItem {
                     player.replaceCurrentItem(with: nil)
@@ -102,10 +110,38 @@ public final class AudioBarViewController: UIViewController, Elm.Delegate {
         }
     }
 
+    private func configureCommandCenterCommands() {
+        remoteCommandCenter.togglePlayPauseCommand.addTarget { [weak self, weak store] _ in
+            guard store!.view.isPlayPauseButtonEnabled else { return .commandFailed }
+            self!.userDidTapPlayPauseButton()
+            return .success
+        }
+        remoteCommandCenter.playCommand.addTarget { [weak store] _ in
+            guard store!.view.isPlayCommandEnabled else { return .commandFailed }
+            store!.dispatch(.playPauseButton(.userDidTapPlayButton))
+            return .success
+        }
+        remoteCommandCenter.pauseCommand.addTarget { [weak store] _ in
+            guard store!.view.isPauseCommandEnabled else { return .commandFailed }
+            store!.dispatch(.playPauseButton(.userDidTapPauseButton))
+            return .success
+        }
+        remoteCommandCenter.skipForwardCommand.addTarget { [weak store] _ in
+            guard store!.view.isSeekForwardButtonEnabled else { return .commandFailed }
+            store!.dispatch(.userDidTapSeekForwardButton)
+            return .success
+        }
+        remoteCommandCenter.skipBackwardCommand.addTarget { [weak store] _ in
+            guard store!.view.isSeekBackButtonEnabled else { return .commandFailed }
+            store!.dispatch(.userDidTapSeekBackButton)
+            return .success
+        }
+    }
+
     private func beginObservingPlayerItem(_ playerItem: AVPlayerItem) {
         playerItem.addObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), options: [.old, .new], context: nil)
-        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: playerItem, queue: nil) { [weak program] _ in
-            program?.dispatch(.playerDidPlayToEnd)
+        NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: playerItem, queue: nil) { [weak store] _ in
+            store?.dispatch(.playerDidPlayToEnd)
         }
     }
 
@@ -121,9 +157,9 @@ public final class AudioBarViewController: UIViewController, Elm.Delegate {
             case .unknown:
                 break
             case .readyToPlay:
-                program.dispatch(.playerDidBecomeReadyToPlay(withDuration: playerItem.duration.timeInterval))
+                store.dispatch(.playerDidBecomeReadyToPlay(withDuration: playerItem.duration.timeInterval))
             case .failed:
-                program.dispatch(.playerDidFailToBecomeReady)
+                store.dispatch(.playerDidFailToBecomeReady)
             }
         } else {
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
@@ -143,16 +179,4 @@ public final class AudioBarViewController: UIViewController, Elm.Delegate {
         return Bundle(for: AudioBarViewController.self)
     }
 
-}
-
-extension CMTime {
-
-    init(timeInterval: TimeInterval) {
-        self = CMTime(seconds: timeInterval, preferredTimescale: 44100)
-    }
-
-    var timeInterval: TimeInterval {
-        return CMTimeGetSeconds(self)
-    }
-    
 }
