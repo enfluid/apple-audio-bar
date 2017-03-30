@@ -235,7 +235,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -ex\ntest $(swiftlint version) == \"0.16.1\"\nFLAGS=$(test $CONFIGURATION == \"Release\" && echo \"--strict\" || echo \"\")\nswiftlint lint $FLAGS\n";
+			shellScript = "set -ex\ntest $(swiftlint version) == \"0.17.0\"\nFLAGS=$(test $CONFIGURATION == \"Release\" && echo \"--strict\" || echo \"\")\nswiftlint lint $FLAGS\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
