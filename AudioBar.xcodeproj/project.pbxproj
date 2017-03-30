@@ -14,9 +14,9 @@
 		91930F721E0315BC006A0091 /* AudioBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91930F6F1E0315BC006A0091 /* AudioBarViewController.swift */; };
 		91930F731E0315BC006A0091 /* AudioBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91930F701E0315BC006A0091 /* AudioBar.swift */; };
 		91C1561D1E6F2C6800FA2740 /* CMTime+TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C1561C1E6F2C6800FA2740 /* CMTime+TimeInterval.swift */; };
-		91C186411E03177A006ECAD8 /* Elm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91C186401E03177A006ECAD8 /* Elm.framework */; };
 		91C186461E031A4D006ECAD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91C186451E031A4D006ECAD8 /* Assets.xcassets */; };
-		91C655B11E1BB0D0008D1F21 /* Elm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91C186401E03177A006ECAD8 /* Elm.framework */; };
+		91F077E21E8D3D62000B5A61 /* Stateful.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F077E11E8D3D62000B5A61 /* Stateful.framework */; };
+		91F077E31E8D3D62000B5A61 /* Stateful.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F077E11E8D3D62000B5A61 /* Stateful.framework */; };
 		B69430781E819FF800A6E830 /* AudioTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69430771E819FF800A6E830 /* AudioTags.swift */; };
 /* End PBXBuildFile section */
 
@@ -41,8 +41,8 @@
 		91930F6F1E0315BC006A0091 /* AudioBarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioBarViewController.swift; sourceTree = "<group>"; };
 		91930F701E0315BC006A0091 /* AudioBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioBar.swift; sourceTree = "<group>"; };
 		91C1561C1E6F2C6800FA2740 /* CMTime+TimeInterval.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CMTime+TimeInterval.swift"; sourceTree = "<group>"; };
-		91C186401E03177A006ECAD8 /* Elm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Elm.framework; path = Carthage/Build/iOS/Elm.framework; sourceTree = "<group>"; };
 		91C186451E031A4D006ECAD8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		91F077E11E8D3D62000B5A61 /* Stateful.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Stateful.framework; path = Carthage/Build/iOS/Stateful.framework; sourceTree = "<group>"; };
 		B69430771E819FF800A6E830 /* AudioTags.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioTags.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -51,7 +51,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				91C186411E03177A006ECAD8 /* Elm.framework in Frameworks */,
+				91F077E21E8D3D62000B5A61 /* Stateful.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,8 +59,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				91F077E31E8D3D62000B5A61 /* Stateful.framework in Frameworks */,
 				91930F3E1E03158F006A0091 /* AudioBar.framework in Frameworks */,
-				91C655B11E1BB0D0008D1F21 /* Elm.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +70,7 @@
 		916289DC1E1C49610004D27E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				91C186401E03177A006ECAD8 /* Elm.framework */,
+				91F077E11E8D3D62000B5A61 /* Stateful.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

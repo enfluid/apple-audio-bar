@@ -1,9 +1,7 @@
 import Foundation
-import Elm
+import Stateful
 
-public struct AudioBar: Program {
-
-    public struct Seed {}
+public struct AudioBar: StateMachine {
 
     public enum Event {
         public enum PlayPauseButton {
@@ -14,29 +12,38 @@ public struct AudioBar: Program {
         case playPauseButton(PlayPauseButton)
         case userDidTapSeekBackButton
         case userDidTapSeekForwardButton
-        case playerDidBecomeReadyToPlay(withDuration: TimeInterval, and: AudioTags)
+
+        case playerDidBecomeReady
         case playerDidFailToBecomeReady
         case playerDidUpdateCurrentTime(TimeInterval)
         case playerDidPlayToEnd
+
     }
 
     public enum State {
         public struct ReadyToPlay {
             var isPlaying: Bool
-            var duration: TimeInterval
             var currentTime: TimeInterval?
-            let audioTags: AudioTags
+            var info: Action.Player.Info
         }
         case waitingForURL
         case readyToLoadURL(URL)
-        case waitingForPlayerToBecomeReadyToPlayURL(URL)
+        case waitingForPlayerToLoad(URL)
         case readyToPlay(ReadyToPlay)
         static let seekInterval: TimeInterval = 15
     }
 
     public enum Action {
         public enum Player {
-            case loadURL(URL?)
+            struct Info {
+                var title: String?
+                var artist: String?
+                var album: String?
+                var artwork: Data?
+                let duration: TimeInterval
+            }
+            case load(URL?)
+            case getInfo
             case play
             case pause
             case setCurrentTime(TimeInterval)
@@ -64,7 +71,7 @@ public struct AudioBar: Program {
         let artworkData: Data?
     }
 
-    public enum Failure: Error {
+    public enum Error {
         case noURL
         case readyToLoadURL
         case notReadyToPlay
@@ -74,223 +81,343 @@ public struct AudioBar: Program {
         case notWaitingToBecomeReadyToPlay
     }
 
-    public static func start(with seed: Seed, perform: (Action) -> Void) -> Result<State, Failure> {
-        let state = State.waitingForURL
-        return .success(state)
+    public static var initialState: State {
+        return .waitingForURL
     }
 
-    public static func update(for event: Event, state: inout State, perform: (Action) -> Void) -> Result<Success, Failure> {
-        switch event {
-        case .prepareToLoad(let url):
-            let isPlayerActive: Bool = {
-                switch state {
-                case .waitingForURL:
-                    return false
-                case .readyToLoadURL:
-                    return false
-                case .waitingForPlayerToBecomeReadyToPlayURL:
-                    return true
-                case .readyToPlay:
-                    return true
-                }
-            }()
-            if isPlayerActive {
-                perform(.player(.loadURL(nil)))
-            }
-            if let url = url {
-                state = .readyToLoadURL(url)
-            } else {
-                state = .waitingForURL
-            }
-        case .playPauseButton(.userDidTapPlayButton):
-            switch state {
-            case .waitingForURL:
-                return .failure(.noURL)
-            case .readyToLoadURL(at: let url):
-                state = .waitingForPlayerToBecomeReadyToPlayURL(url)
-                perform(.player(.loadURL(url)))
-            case .waitingForPlayerToBecomeReadyToPlayURL:
-                return .failure(.waitingToBecomeReadyToPlay)
-            case .readyToPlay(var readyToPlay):
-                guard !readyToPlay.isPlaying else { return .failure(.playing) }
-                readyToPlay.isPlaying = true
-                state = .readyToPlay(readyToPlay)
-                perform(.player(.play))
-            }
-        case .playPauseButton(.userDidTapPauseButton):
-            switch state {
-            case .waitingForURL:
-                return .failure(.noURL)
-            case .readyToLoadURL:
-                return .failure(.readyToLoadURL)
-            case .waitingForPlayerToBecomeReadyToPlayURL(let url):
-                state = .readyToLoadURL(url)
-                perform(.player(.loadURL(nil)))
-            case .readyToPlay(var readyToPlay):
-                guard readyToPlay.isPlaying else { return .failure(.notPlaying) }
-                readyToPlay.isPlaying = false
-                state = .readyToPlay(readyToPlay)
-                perform(.player(.pause))
-            }
-        case .userDidTapSeekBackButton:
-            guard case .readyToPlay(var readyToPlay) = state else {
-                return .failure(.notReadyToPlay)
-            }
-            readyToPlay.currentTime = max(0, readyToPlay.currentTime! - State.seekInterval)
-            state = .readyToPlay(readyToPlay)
-            perform(.player(.setCurrentTime(readyToPlay.currentTime!)))
-        case .userDidTapSeekForwardButton:
-            guard case .readyToPlay(var readyToPlay) = state else {
-                return .failure(.notReadyToPlay)
-            }
-
-            let currentTime = min(readyToPlay.duration, readyToPlay.currentTime! + State.seekInterval)
-            readyToPlay.currentTime = currentTime
-            perform(.player(.setCurrentTime(currentTime)))
-
-            if currentTime == readyToPlay.duration && readyToPlay.isPlaying {
-                readyToPlay.isPlaying = false
-                perform(.player(.pause))
-            }
-
-            state = .readyToPlay(readyToPlay)
-        case .playerDidBecomeReadyToPlay(withDuration: let duration, and: let audioTags):
-            guard case .waitingForPlayerToBecomeReadyToPlayURL = state else {
-                return .failure(.notWaitingToBecomeReadyToPlay)
-            }
-            state = .readyToPlay(.init(isPlaying: true, duration: duration, currentTime: nil, audioTags: audioTags))
-            perform(.player(.play))
-
-        case .playerDidPlayToEnd:
-            guard case .readyToPlay(var readyToPlay) = state else {
-                return .failure(.notReadyToPlay)
-            }
-            guard readyToPlay.isPlaying else {
-                return .failure(.notPlaying)
-            }
-            readyToPlay.currentTime = readyToPlay.duration
-            readyToPlay.isPlaying = false
-            state = .readyToPlay(readyToPlay)
-        case .playerDidUpdateCurrentTime(let currentTime):
-            guard case .readyToPlay(var readyToPlay) = state else {
-                return .failure(.notReadyToPlay)
-            }
-            readyToPlay.currentTime = currentTime
-            state = .readyToPlay(readyToPlay)
-        case .playerDidFailToBecomeReady:
-            guard case .waitingForPlayerToBecomeReadyToPlayURL(let url) = state else {
-                return .failure(.notWaitingToBecomeReadyToPlay)
-            }
-            state = .readyToLoadURL(url)
-            perform(.showAlert(text: "Unable to load media", button: "OK"))
-        }
-        return .success()
-    }
-
-    public static func view(for state: State) -> Result<View, Failure> {
-        let view: View
+    public static func update(_ state: State, trigger: Trigger<AudioBar>) -> Update<AudioBar> {
         switch state {
+
         case .waitingForURL:
-            view = .init(
-                playPauseButtonEvent: .userDidTapPlayButton,
-                isPlayPauseButtonEnabled: false,
-                areSeekButtonsHidden: true,
-                playbackTime: "",
-                isSeekBackButtonEnabled: false,
-                isSeekForwardButtonEnabled: false,
-                isLoadingIndicatorVisible: false,
-                isPlayCommandEnabled: false,
-                isPauseCommandEnabled: false,
-                seekInterval: State.seekInterval,
-                playbackDuration: 0,
-                elapsedPlaybackTime: 0,
-                trackName: nil,
-                artistName: nil,
-                albumName: nil,
-                artworkData: nil
-            )
-        case .readyToLoadURL:
-            view = .init(
-                playPauseButtonEvent: .userDidTapPlayButton,
-                isPlayPauseButtonEnabled: true,
-                areSeekButtonsHidden: true,
-                playbackTime: "",
-                isSeekBackButtonEnabled: false,
-                isSeekForwardButtonEnabled: false,
-                isLoadingIndicatorVisible: false,
-                isPlayCommandEnabled: true,
-                isPauseCommandEnabled: false,
-                seekInterval: State.seekInterval,
-                playbackDuration: 0,
-                elapsedPlaybackTime: 0,
-                trackName: nil,
-                artistName: nil,
-                albumName: nil,
-                artworkData: nil
-            )
-        case .waitingForPlayerToBecomeReadyToPlayURL:
-            view = .init(
-                playPauseButtonEvent: .userDidTapPauseButton,
-                isPlayPauseButtonEnabled: true,
-                areSeekButtonsHidden: true,
-                playbackTime: "",
-                isSeekBackButtonEnabled: false,
-                isSeekForwardButtonEnabled: false,
-                isLoadingIndicatorVisible: true,
-                isPlayCommandEnabled: false,
-                isPauseCommandEnabled: true,
-                seekInterval: State.seekInterval,
-                playbackDuration: 0,
-                elapsedPlaybackTime: 0,
-                trackName: nil,
-                artistName: nil,
-                albumName: nil,
-                artworkData: nil
-            )
+            switch trigger {
+
+            case .didMutate:
+                return .present(
+                    .init(
+                        playPauseButtonEvent: .userDidTapPlayButton,
+                        isPlayPauseButtonEnabled: false,
+                        areSeekButtonsHidden: true,
+                        playbackTime: "",
+                        isSeekBackButtonEnabled: false,
+                        isSeekForwardButtonEnabled: false,
+                        isLoadingIndicatorVisible: false,
+                        isPlayCommandEnabled: false,
+                        isPauseCommandEnabled: false,
+                        seekInterval: State.seekInterval,
+                        playbackDuration: 0,
+                        elapsedPlaybackTime: 0,
+                        trackName: nil,
+                        artistName: nil,
+                        albumName: nil,
+                        artworkData: nil
+                    )
+                )
+
+            case .didPresent:
+                return .idle
+
+            case .didReceive(.prepareToLoad(let url)):
+                if let url = url {
+                    return .mutate(.readyToLoadURL(url))
+                } else {
+                    return .mutate(.waitingForURL) // This basically can be idle
+                }
+
+            default:
+                fatalError()
+            }
+
+        case .readyToLoadURL(let url):
+            switch trigger {
+
+            case .didMutate:
+                return .present(
+                    .init(
+                        playPauseButtonEvent: .userDidTapPlayButton,
+                        isPlayPauseButtonEnabled: true,
+                        areSeekButtonsHidden: true,
+                        playbackTime: "",
+                        isSeekBackButtonEnabled: false,
+                        isSeekForwardButtonEnabled: false,
+                        isLoadingIndicatorVisible: false,
+                        isPlayCommandEnabled: true,
+                        isPauseCommandEnabled: false,
+                        seekInterval: State.seekInterval,
+                        playbackDuration: 0,
+                        elapsedPlaybackTime: 0,
+                        trackName: nil,
+                        artistName: nil,
+                        albumName: nil,
+                        artworkData: nil
+                    )
+                )
+
+            case .didPresent:
+                return .idle
+
+            case .didReceive(.playPauseButton(.userDidTapPlayButton)):
+                return .perform(.player(.load(url)))
+
+            case .didPerform(.player(.load(.some(url))), result: _ as Void):
+                return .mutate(.waitingForPlayerToLoad(url))
+
+            case .didPerform(.player(.load(nil)), result: _ as Void):
+                return .mutate(.waitingForURL)
+
+            default:
+                fatalError()
+            }
+
+        case .waitingForPlayerToLoad(let url):
+            switch trigger {
+
+            case .didMutate:
+                return .present(
+                    .init(
+                        playPauseButtonEvent: .userDidTapPauseButton,
+                        isPlayPauseButtonEnabled: true,
+                        areSeekButtonsHidden: true,
+                        playbackTime: "",
+                        isSeekBackButtonEnabled: false,
+                        isSeekForwardButtonEnabled: false,
+                        isLoadingIndicatorVisible: true,
+                        isPlayCommandEnabled: false,
+                        isPauseCommandEnabled: true,
+                        seekInterval: State.seekInterval,
+                        playbackDuration: 0,
+                        elapsedPlaybackTime: 0,
+                        trackName: nil,
+                        artistName: nil,
+                        albumName: nil,
+                        artworkData: nil
+                    )
+                )
+
+            case .didPresent:
+                return .idle
+
+            case .didReceive(.playerDidBecomeReady):
+                return .perform(.player(.play))
+
+            case .didReceive(.prepareToLoad):
+                return .perform(.player(.load(nil)))
+
+            case .didReceive(.playerDidFailToBecomeReady):
+                return .perform(.showAlert(text: "Unable to load media", button: "OK"))
+
+            case .didPerform(.player(.play), result: _ as Void):
+                return .perform(.player(.getInfo))
+
+            case .didPerform(.player(.getInfo), result: let info as Action.Player.Info):
+                return .mutate(.readyToPlay(.init(isPlaying: true, currentTime: nil, info: info)))
+
+            case .didPerform(.player(.load(nil)), result: _ as Void):
+                return .mutate(.waitingForURL)
+
+            case .didPerform(.showAlert(text: "Unable to load media", button: "OK"), result: _ as Void):
+                return .mutate(.readyToLoadURL(url))
+
+            default:
+                fatalError()
+
+            }
+
         case .readyToPlay(let readyToPlay):
-            var remainingTime: TimeInterval? {
-                guard let currentTime = readyToPlay.currentTime else { return nil }
-                return readyToPlay.duration - currentTime
+
+            switch trigger {
+
+            case .didMutate:
+                var remainingTime: TimeInterval? {
+                    guard let currentTime = readyToPlay.currentTime else {
+                        return nil
+                    }
+                    return readyToPlay.info.duration - currentTime
+                }
+                var remainingTimeText: String {
+                    guard let remainingTime = remainingTime else {
+                        return ""
+                    }
+                    let formatter = DateComponentsFormatter()
+                    formatter.allowedUnits = [.minute, .second]
+                    formatter.zeroFormattingBehavior = .pad
+                    return "-" + formatter.string(from: remainingTime)!
+                }
+                var isPlayPauseButtonEnabled: Bool {
+                    guard let remainingTime = remainingTime else {
+                        return true
+                    }
+                    return remainingTime > 0
+                }
+                var isSeekBackButtonEnabled: Bool {
+                    guard let currentTime = readyToPlay.currentTime else {
+                        return false
+                    }
+                    return currentTime > 0
+                }
+                var isSeekForwardButtonEnabled: Bool {
+                    guard let remainingTime = remainingTime else {
+                        return false
+                    }
+                    return remainingTime > 0
+                }
+                return .present(
+                    .init(
+                        playPauseButtonEvent: readyToPlay.isPlaying ? .userDidTapPauseButton : .userDidTapPlayButton,
+                        isPlayPauseButtonEnabled: isPlayPauseButtonEnabled,
+                        areSeekButtonsHidden: false,
+                        playbackTime: remainingTimeText,
+                        isSeekBackButtonEnabled: isSeekBackButtonEnabled,
+                        isSeekForwardButtonEnabled: isSeekForwardButtonEnabled,
+                        isLoadingIndicatorVisible: readyToPlay.isPlaying && readyToPlay.currentTime == nil,
+                        isPlayCommandEnabled: !readyToPlay.isPlaying && isPlayPauseButtonEnabled,
+                        isPauseCommandEnabled: readyToPlay.isPlaying && isPlayPauseButtonEnabled,
+                        seekInterval: State.seekInterval,
+                        playbackDuration: readyToPlay.info.duration,
+                        elapsedPlaybackTime: readyToPlay.currentTime ?? 0,
+                        trackName: readyToPlay.info.title,
+                        artistName: readyToPlay.info.artist,
+                        albumName: readyToPlay.info.album,
+                        artworkData: readyToPlay.info.artwork
+                    )
+                )
+
+            case .didPresent:
+                return .idle
+
+            case .didReceive(.playerDidUpdateCurrentTime(let currentTime)):
+                var readyToPlay = readyToPlay
+                readyToPlay.currentTime = currentTime
+                return .mutate(.readyToPlay(readyToPlay))
+
+            case .didReceive(.playerDidPlayToEnd):
+                var readyToPlay = readyToPlay
+                readyToPlay.currentTime = readyToPlay.info.duration
+                readyToPlay.isPlaying = false
+                return .mutate(.readyToPlay(readyToPlay))
+
+            
+
+            default:
+                fatalError()
+
             }
-            var remainingTimeText: String {
-                guard let remainingTime = remainingTime else { return "" }
-                let formatter = DateComponentsFormatter()
-                formatter.allowedUnits = [.minute, .second]
-                formatter.zeroFormattingBehavior = .pad
-                return "-" + formatter.string(from: remainingTime)!
-            }
-            var isPlayPauseButtonEnabled: Bool {
-                guard let remainingTime = remainingTime else { return true }
-                return remainingTime > 0
-            }
-            var isSeekBackButtonEnabled: Bool {
-                guard let currentTime = readyToPlay.currentTime else { return false }
-                return currentTime > 0
-            }
-            var isSeekForwardButtonEnabled: Bool {
-                guard let remainingTime = remainingTime else { return false }
-                return remainingTime > 0
-            }
-            view = .init(
-                playPauseButtonEvent: readyToPlay.isPlaying ? .userDidTapPauseButton : .userDidTapPlayButton,
-                isPlayPauseButtonEnabled: isPlayPauseButtonEnabled,
-                areSeekButtonsHidden: false,
-                playbackTime: remainingTimeText,
-                isSeekBackButtonEnabled: isSeekBackButtonEnabled,
-                isSeekForwardButtonEnabled: isSeekForwardButtonEnabled,
-                isLoadingIndicatorVisible: readyToPlay.isPlaying && readyToPlay.currentTime == nil,
-                isPlayCommandEnabled: !readyToPlay.isPlaying && isPlayPauseButtonEnabled,
-                isPauseCommandEnabled: readyToPlay.isPlaying && isPlayPauseButtonEnabled,
-                seekInterval: State.seekInterval,
-                playbackDuration: readyToPlay.duration,
-                elapsedPlaybackTime: readyToPlay.currentTime ?? 0,
-                trackName: readyToPlay.audioTags.title,
-                artistName: readyToPlay.audioTags.artistName,
-                albumName: readyToPlay.audioTags.albumName,
-                artworkData: readyToPlay.audioTags.artworkData
-            )
+
+
         }
-        return .success(view)
+
+        fatalError()
+
     }
 
+    //        switch event {
+    //        case .prepareToLoad(let url):
+    //            let isPlayerActive: Bool = {
+    //                switch state {
+    //                case .waitingForURL:
+    //                    return false
+    //                case .readyToLoadURL:
+    //                    return false
+    //                case .waitingForPlayerToBecomeReadyToPlayURL:
+    //                    return true
+    //                case .readyToPlay:
+    //                    return true
+    //                }
+    //            }()
+    //            if isPlayerActive {
+    //                perform(.player(.loadURL(nil)))
+    //            }
+    //            if let url = url {
+    //                state = .readyToLoadURL(url)
+    //            } else {
+    //                state = .waitingForURL
+    //            }
+    //        case .playPauseButton(.userDidTapPlayButton):
+    //            switch state {
+    //            case .waitingForURL:
+    //                return .failure(.noURL)
+    //            case .readyToLoadURL(at: let url):
+    //                state = .waitingForPlayerToBecomeReadyToPlayURL(url)
+    //                perform(.player(.loadURL(url)))
+    //            case .waitingForPlayerToBecomeReadyToPlayURL:
+    //                return .failure(.waitingToBecomeReadyToPlay)
+    //            case .readyToPlay(var readyToPlay):
+    //                guard !readyToPlay.isPlaying else { return .failure(.playing) }
+    //                readyToPlay.isPlaying = true
+    //                state = .readyToPlay(readyToPlay)
+    //                perform(.player(.play))
+    //            }
+    //        case .playPauseButton(.userDidTapPauseButton):
+    //            switch state {
+    //            case .waitingForURL:
+    //                return .failure(.noURL)
+    //            case .readyToLoadURL:
+    //                return .failure(.readyToLoadURL)
+    //            case .waitingForPlayerToBecomeReadyToPlayURL(let url):
+    //                state = .readyToLoadURL(url)
+    //                perform(.player(.loadURL(nil)))
+    //            case .readyToPlay(var readyToPlay):
+    //                guard readyToPlay.isPlaying else { return .failure(.notPlaying) }
+    //                readyToPlay.isPlaying = false
+    //                state = .readyToPlay(readyToPlay)
+    //                perform(.player(.pause))
+    //            }
+    //        case .userDidTapSeekBackButton:
+    //            guard case .readyToPlay(var readyToPlay) = state else {
+    //                return .failure(.notReadyToPlay)
+    //            }
+    //            readyToPlay.currentTime = max(0, readyToPlay.currentTime! - State.seekInterval)
+    //            state = .readyToPlay(readyToPlay)
+    //            perform(.player(.setCurrentTime(readyToPlay.currentTime!)))
+    //        case .userDidTapSeekForwardButton:
+    //            guard case .readyToPlay(var readyToPlay) = state else {
+    //                return .failure(.notReadyToPlay)
+    //            }
+    //
+    //            let currentTime = min(readyToPlay.duration, readyToPlay.currentTime! + State.seekInterval)
+    //            readyToPlay.currentTime = currentTime
+    //            perform(.player(.setCurrentTime(currentTime)))
+    //
+    //            if currentTime == readyToPlay.duration && readyToPlay.isPlaying {
+    //                readyToPlay.isPlaying = false
+    //                perform(.player(.pause))
+    //            }
+    //
+    //            state = .readyToPlay(readyToPlay)
+    //        case .playerDidBecomeReady(withDuration: let duration, and: let audioTags):
+    //            guard case .waitingForPlayerToBecomeReadyToPlayURL = state else {
+    //                return .failure(.notWaitingToBecomeReadyToPlay)
+    //            }
+    //            state = .readyToPlay(.init(isPlaying: true, duration: duration, currentTime: nil, audioTags: audioTags))
+    //            perform(.player(.play))
+    //
+    //        case .playerDidPlayToEnd:
+    //            guard case .readyToPlay(var readyToPlay) = state else {
+    //                return .failure(.notReadyToPlay)
+    //            }
+    //            guard readyToPlay.isPlaying else {
+    //                return .failure(.notPlaying)
+    //            }
+    //            readyToPlay.currentTime = readyToPlay.duration
+    //            readyToPlay.isPlaying = false
+    //            state = .readyToPlay(readyToPlay)
+    //        case .playerDidUpdateCurrentTime(let currentTime):
+    //            guard case .readyToPlay(var readyToPlay) = state else {
+    //                return .failure(.notReadyToPlay)
+    //            }
+    //            readyToPlay.currentTime = currentTime
+    //            state = .readyToPlay(readyToPlay)
+    //        case .playerDidFailToBecomeReady:
+    //            guard case .waitingForPlayerToBecomeReadyToPlayURL(let url) = state else {
+    //                return .failure(.notWaitingToBecomeReadyToPlay)
+    //            }
+    //            state = .readyToLoadURL(url)
+    //            perform(.showAlert(text: "Unable to load media", button: "OK"))
+    //        }
+    //        return .success()
+    //    }
+    
+    //    public static func view(for state: State) -> Result<View, Failure> {
+    
+    //    }
+    
 }
