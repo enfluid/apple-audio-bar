@@ -86,9 +86,13 @@ public struct AudioBar: StateMachine {
     }
 
     public static func update(_ state: State, trigger: Trigger<AudioBar>) -> Update<AudioBar> {
+
+        // MARK: - Waiting for URL
+
         switch state {
 
         case .waitingForURL:
+
             switch trigger {
 
             case .didMutate:
@@ -116,6 +120,15 @@ public struct AudioBar: StateMachine {
             case .didPresent:
                 return .idle
 
+            default:
+                break
+
+            }
+
+            // MARK: + Prepare to load URL
+
+            switch trigger {
+
             case .didReceive(.prepareToLoad(let url)):
                 if let url = url {
                     return .mutate(.readyToLoadURL(url))
@@ -124,10 +137,21 @@ public struct AudioBar: StateMachine {
                 }
 
             default:
-                fatalError()
+                break
+
             }
 
+        default:
+            break
+
+        }
+
+        // MARK: - Ready to load URL
+
+        switch state {
+
         case .readyToLoadURL(let url):
+
             switch trigger {
 
             case .didMutate:
@@ -155,6 +179,15 @@ public struct AudioBar: StateMachine {
             case .didPresent:
                 return .idle
 
+            default:
+                break
+
+            }
+
+            // MARK: + User did tap play button
+
+            switch trigger {
+
             case .didReceive(.playPauseButton(.userDidTapPlayButton)):
                 return .perform(.player(.load(url)))
 
@@ -165,10 +198,21 @@ public struct AudioBar: StateMachine {
                 return .mutate(.waitingForURL)
 
             default:
-                fatalError()
+                break
+
             }
 
+        default:
+            break
+
+        }
+
+        // MARK: - Waiting for player to load
+
+        switch state {
+
         case .waitingForPlayerToLoad(let url):
+
             switch trigger {
 
             case .didMutate:
@@ -196,14 +240,18 @@ public struct AudioBar: StateMachine {
             case .didPresent:
                 return .idle
 
+            default:
+                break
+
+            }
+
+            // MARK: + Player did become ready
+
+            switch trigger {
+
             case .didReceive(.playerDidBecomeReady):
+                // return .mutate(preparing(.startingPlayback))
                 return .perform(.player(.play))
-
-            case .didReceive(.prepareToLoad):
-                return .perform(.player(.load(nil)))
-
-            case .didReceive(.playerDidFailToBecomeReady):
-                return .perform(.showAlert(text: "Unable to load media", button: "OK"))
 
             case .didPerform(.player(.play), result: _ as Void):
                 return .perform(.player(.getInfo))
@@ -211,16 +259,49 @@ public struct AudioBar: StateMachine {
             case .didPerform(.player(.getInfo), result: let info as Action.Player.Info):
                 return .mutate(.readyToPlay(.init(isPlaying: true, currentTime: nil, info: info)))
 
+            default:
+                break
+
+            }
+
+            // MARK: + Prepare to load
+
+            switch trigger {
+
+            case .didReceive(.prepareToLoad): // Ignoring URL
+                return .perform(.player(.load(nil)))
+
             case .didPerform(.player(.load(nil)), result: _ as Void):
                 return .mutate(.waitingForURL)
+
+            default:
+                break
+
+            }
+
+            // MARK: + Player did fail to become ready
+
+            switch trigger {
+
+            case .didReceive(.playerDidFailToBecomeReady):
+                return .perform(.showAlert(text: "Unable to load media", button: "OK"))
 
             case .didPerform(.showAlert(text: "Unable to load media", button: "OK"), result: _ as Void):
                 return .mutate(.readyToLoadURL(url))
 
             default:
-                fatalError()
+                break
 
             }
+
+        default:
+            break
+
+        }
+
+        // MARK: - Ready to play
+
+        switch state {
 
         case .readyToPlay(let readyToPlay):
 
@@ -284,6 +365,15 @@ public struct AudioBar: StateMachine {
             case .didPresent:
                 return .idle
 
+            default:
+                break
+
+            }
+
+            // MARK: + Player did update current time
+
+            switch trigger {
+
             case .didReceive(.playerDidUpdateCurrentTime(let currentTime)):
                 var readyToPlay = readyToPlay
                 readyToPlay.currentTime = currentTime
@@ -295,13 +385,32 @@ public struct AudioBar: StateMachine {
                 readyToPlay.isPlaying = false
                 return .mutate(.readyToPlay(readyToPlay))
 
-            
-
             default:
-                fatalError()
+                break
 
             }
 
+            // MARK: + User did tap seek back/forward button
+
+            switch trigger {
+
+            case .didReceive(.userDidTapSeekBackButton):
+                // Get rid of 'currentTime' optional
+                let currentTime = max(0, readyToPlay.currentTime! - State.seekInterval)
+                return .perform(.player(.setCurrentTime(currentTime)))
+
+            case .didPerform(.player(.setCurrentTime(let currentTime)), result: _ as Void):
+                var readyToPlay = readyToPlay
+                readyToPlay.currentTime = currentTime
+                return .mutate(.readyToPlay(readyToPlay))
+
+            default:
+                break
+
+            }
+
+        default:
+            break
 
         }
 
