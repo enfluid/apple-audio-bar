@@ -276,7 +276,6 @@ public struct AudioBar: StateMachine {
             switch trigger {
 
             case .didReceive(.playerDidBecomeReady):
-                // return .mutate(preparing(.startingPlayback))
                 return .perform(.player(.play))
 
             case .didPerform(.player(.play), result: _ as Void):
