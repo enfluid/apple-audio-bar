@@ -459,49 +459,27 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(state, equals: .readyToPlay(.init(currentTime: 120)))
     }
 
-    //    func testUserDidTapSeekForwardButton1() {
-    //        let update = expectUpdate(for: .userDidTapSeekForwardButton, state: .readyToPlay(.init(duration: 60, currentTime: 0)))
-    //        let expectedTime = 0 + AudioBar.State.seekInterval
-    //        expect(update?.state, .readyToPlay(.init(duration: 60, currentTime: expectedTime)))
-    //        expect(update?.action, .player(.setCurrentTime(expectedTime)))
-    //    }
-    //
-    //    func testUserDidTapSeekForwardButton2() {
-    //        let update = expectUpdate(for: .userDidTapSeekForwardButton, state: .readyToPlay(.init(duration: 60, currentTime: 1)))
-    //        let expectedTime = 1 + AudioBar.State.seekInterval
-    //        expect(update?.state, .readyToPlay(.init(duration: 60, currentTime: expectedTime)))
-    //        expect(update?.action, .player(.setCurrentTime(expectedTime)))
-    //    }
-    //
-    //    func testUserDidTapSeekForwardButtonNearEndWhenPlaying1() {
-    //        let update = expectUpdate(for: .userDidTapSeekForwardButton, state: .readyToPlay(.init(isPlaying: true, duration: 60, currentTime: 59)))
-    //        expect(update?.state, .readyToPlay(.init(isPlaying: false, duration: 60, currentTime: 60)))
-    //        expect(update?.actions[0], .player(.setCurrentTime(60)))
-    //        expect(update?.actions[1], .player(.pause))
-    //    }
-    //
-    //    func testUserDidTapSeekForwardButtonNearEndWhenPlaying2() {
-    //        let update = expectUpdate(for: .userDidTapSeekForwardButton, state: .readyToPlay(.init(isPlaying: true, duration: 60, currentTime: 58)))
-    //        expect(update?.state, .readyToPlay(.init(isPlaying: false, duration: 60, currentTime: 60)))
-    //        expect(update?.actions[0], .player(.setCurrentTime(60)))
-    //        expect(update?.actions[1], .player(.pause))
-    //    }
-    //
-    //    func testUserDidTapSeekForwardButtonNearEndWhenPaused1() {
-    //        let update = expectUpdate(for: .userDidTapSeekForwardButton, state: .readyToPlay(.init(isPlaying: false, duration: 60, currentTime: 59)))
-    //        expect(update?.action, .player(.setCurrentTime(60)))
-    //    }
-    //
-    //    func testUserDidTapSeekForwardButtonNearEndWhenPaused2() {
-    //        let update = expectUpdate(for: .userDidTapSeekForwardButton, state: .readyToPlay(.init(isPlaying: false, duration: 60, currentTime: 58)))
-    //        expect(update?.action, .player(.setCurrentTime(60)))
-    //    }
-    //
-    //    func testUserDidTapPlayButtonWhenReadyToPlayAndNotPlaying() {
-    //        let update = expectUpdate(for: .playPauseButton(.userDidTapPlayButton), state: .readyToPlay(.init(isPlaying: false)))
-    //        expect(update?.state, .readyToPlay(.init(isPlaying: true)))
-    //        expect(update?.action, .player(.play))
-    //    }
+    func testUserDidTapSeekForwardButton1() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 0, info: .init(duration: 60))))
+        expect(action, equals: .player(.setCurrentTime(0 + AudioBar.State.seekInterval)))
+    }
+
+    func testUserDidTapSeekForwardButton2() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 1, info: .init(duration: 60))))
+        expect(action, equals: .player(.setCurrentTime(1 + AudioBar.State.seekInterval)))
+    }
+
+    func testUserDidTapSeekForwardButtonNearEnd1() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 60 - 1, info: .init(duration: 60))))
+        expect(action, equals: .player(.setCurrentTime(60)))
+    }
+
+    func testUserDidTapSeekForwardButtonNearEnd2() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 60 - 2, info: .init(duration: 60))))
+        expect(action, equals: .player(.setCurrentTime(60)))
+    }
+
+
 
 
 

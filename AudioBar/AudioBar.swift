@@ -399,6 +399,10 @@ public struct AudioBar: StateMachine {
                 let currentTime = max(0, readyToPlay.currentTime! - State.seekInterval)
                 return .perform(.player(.setCurrentTime(currentTime)))
 
+            case .didReceive(.userDidTapSeekForwardButton):
+                let currentTime = min(readyToPlay.info.duration, readyToPlay.currentTime! + State.seekInterval)
+                return .perform(.player(.setCurrentTime(currentTime)))
+
             case .didPerform(.player(.setCurrentTime(let currentTime)), result: _ as Void):
                 var readyToPlay = readyToPlay
                 readyToPlay.currentTime = currentTime
