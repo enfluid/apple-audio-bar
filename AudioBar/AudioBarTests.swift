@@ -185,7 +185,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
     }
 
     func test_WaitingForPlayerToLoad_UserDidTapPlayPauseButton_3() {
-        // TODO: Duplicate (1)
+        // WARNING: Duplicate (1)
         let state = expectState(for: .didPerform(.player(.load(nil)), result: Void()), state: .waitingForPlayerToLoad(.foo))
         expect(state, equals: .waitingForURL)
     }
@@ -198,7 +198,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
     }
 
     func test_WaitingForPlayerToLoad_Reset2() {
-        // TODO: Duplicate (2)
+        // WARNING: Duplicate (2)
         let state = expectState(for: .didPerform(.player(.load(nil)), result: Void()), state: .waitingForPlayerToLoad(.foo))
         expect(state, equals: .waitingForURL)
     }

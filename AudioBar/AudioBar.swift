@@ -320,7 +320,7 @@ public struct AudioBar: StateMachine {
                 return .perform(.player(.load(nil)))
 
             case .didPerform(.player(.load(nil)), result: _ as Void):
-                // TODO: Duplicate(1)
+                // WARNING: Duplicate(1)
                 return .mutate(.waitingForURL)
 
             default:
@@ -336,7 +336,7 @@ public struct AudioBar: StateMachine {
                 return .perform(.player(.load(nil)))
 
             case .didPerform(.player(.load(nil)), result: _ as Void):
-                // TODO: Duplicate(2)
+                // WARNING: Duplicate(2)
                 return .mutate(.waitingForURL)
 
             default:
@@ -467,7 +467,7 @@ public struct AudioBar: StateMachine {
 
             default:
                 break
-                
+
             }
 
             // MARK: + User did tap seek back/forward button
