@@ -22,20 +22,28 @@ public struct AudioBar: StateMachine {
     }
 
     public enum State {
+
         public struct ReadyToPlay {
+
             var isPlaying: Bool
             var currentTime: TimeInterval?
             var info: Action.Player.Info
+
         }
+
         case waitingForURL
         case readyToLoadURL(URL)
         case waitingForPlayerToLoad(URL)
         case readyToPlay(ReadyToPlay)
+
         static let seekInterval: TimeInterval = 15
+
     }
 
     public enum Action {
+
         public enum Player {
+
             struct Info {
                 var title: String?
                 var artist: String?
@@ -43,17 +51,22 @@ public struct AudioBar: StateMachine {
                 var artwork: Data?
                 let duration: TimeInterval
             }
+
             case load(URL?)
             case getInfo
             case play
             case pause
             case setCurrentTime(TimeInterval)
+
         }
+
         case player(Player)
         case showAlert(text: String, button: String)
+
     }
 
     public struct View {
+
         let isPlayPauseButtonEnabled: Bool
         let areSeekButtonsHidden: Bool
         let playbackTime: String
@@ -69,14 +82,19 @@ public struct AudioBar: StateMachine {
         let artistName: String?
         let albumName: String?
         let artworkData: Data?
+
     }
 
     public enum Error {
+
         case invalidStateTransition // Not tested
+
     }
 
     public static var initialState: State {
+
         return .waitingForURL
+
     }
 
     public static func update(_ state: State, trigger: Trigger<AudioBar>) -> Update<AudioBar> {
