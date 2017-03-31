@@ -17,7 +17,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     // MARK: - Waiting for URL
 
-    func test_WaitingForURL_1() {
+    func test_WaitingForURL_Idle1() {
         let view = expectView(for: .didMutate, state: .waitingForURL)
         expect(view?.playPauseButtonImage, equals: .play)
         expect(view?.isPlayPauseButtonEnabled, equals: false)
@@ -36,7 +36,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(view?.albumName, equals: nil)
     }
 
-    func test_WaitingForURL_2() {
+    func test_WaitingForURL_Idle2() {
         expectIdle(for: .didPresent, state: .waitingForURL)
     }
 
@@ -55,7 +55,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     // MARK: - Ready to load URL
 
-    func test_ReadyToLoadURL_1() {
+    func test_ReadyToLoadURL_Idle1() {
         let view = expectView(for: .didMutate, state: .readyToLoadURL(.foo))
         expect(view?.playPauseButtonImage, equals: .play)
         expect(view?.isPlayPauseButtonEnabled, equals: true)
@@ -74,23 +74,23 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(view?.albumName, equals: nil)
     }
 
-    func test_ReadyToLoadURL_2() {
+    func test_ReadyToLoadURL_Idle2() {
         expectIdle(for: .didPresent, state: .readyToLoadURL(.foo))
     }
 
     // MARK: + User did tap play/pause button
 
-    func test_ReadyToLoadURL_UserDidTapPlayPauseButton_1() {
+    func test_ReadyToLoadURL_UserDidTapPlayPauseButton_Event1() {
         let action = expectAction(for: .didReceive(.userDidTapPlayButton), state: .readyToLoadURL(.foo))
         expect(action, equals: .player(.load(URL.foo)))
     }
 
-    func test_ReadyToLoadURL_UserDidTapPlayPauseButton_2() {
+    func test_ReadyToLoadURL_UserDidTapPlayPauseButton_Event2() {
         let action = expectAction(for: .didReceive(.userDidTapPlayPauseButton), state: .readyToLoadURL(.foo))
         expect(action, equals: .player(.load(URL.foo)))
     }
 
-    func test_ReadyToLoadURL_UserDidTapPlayPauseButton_3() {
+    func test_ReadyToLoadURL_UserDidTapPlayPauseButton_Action() {
         let state = expectState(for: .didPerform(.player(.load(URL.foo)), result: Void()), state: .readyToLoadURL(.foo))
         expect(state, equals: .waitingForPlayerToLoad(.foo))
     }
@@ -102,9 +102,9 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(state, equals: .waitingForURL)
     }
 
-    // MARK: - Waiting for player
+    // MARK: - Waiting for player to load URL
 
-    func testWaitingForPlayerView() {
+    func test_WaitingForPlayerToLoadURL_Idle1() {
         let view = expectView(for: .didMutate, state: .waitingForPlayerToLoad(.foo))
         expect(view?.playPauseButtonImage, equals: .pause)
         expect(view?.isPlayPauseButtonEnabled, equals: true)
@@ -123,66 +123,53 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(view?.albumName, equals: nil)
     }
 
-    func testWaitingForPlayerIdle() {
+    func test_WaitingForPlayerToLoadURL_Idle2() {
         expectIdle(for: .didPresent, state: .waitingForPlayerToLoad(.foo))
     }
 
-    func testWaitingForPlayerFail1() {
-            let action = expectAction(for: .didReceive(.playerDidFailToBecomeReady), state: .waitingForPlayerToLoad(.foo))
-            expect(action, equals: .showAlert(text: "Unable to load media", button: "OK"))
+    // MARK: + Player did become ready
+
+    func test_WaitingForPlayerToLoadURL_PlayerDidDidBecomeReady_Event() {
+        let action = expectAction(for: .didReceive(.playerDidBecomeReady), state: .waitingForPlayerToLoad(.foo))
+        expect(action, equals: .player(.play))
     }
 
-    func testWaitingForPlayerFail2() {
+    func test_WaitingForPlayerToLoadURL_PlayerDidDidBecomeReady_Action1() {
+        let action = expectAction(for: .didPerform(.player(.play), result: Void()), state: .waitingForPlayerToLoad(.foo))
+        expect(action, equals: .player(.getInfo))
+    }
+
+    func test_WaitingForPlayerToLoadURL_PlayerDidDidBecomeReady_Action2() {
+        typealias PlayerInfo = StateMachine.Action.Player.Info
+        let state = expectState(for: .didPerform(.player(.getInfo), result: AudioBar.Action.Player.Info()), state: .waitingForPlayerToLoad(.foo))
+        expect(state, equals: .readyToPlay(.init(isPlaying: true, currentTime: nil, info: .init())))
+    }
+
+    // MARK: + Player did fail to become ready
+
+    func test_WaitingForPlayerToLoadURL_PlayerDidFailToBecomeReady_Event() {
+        let action = expectAction(for: .didReceive(.playerDidFailToBecomeReady), state: .waitingForPlayerToLoad(.foo))
+        expect(action, equals: .showAlert(text: "Unable to load media", button: "OK"))
+    }
+
+    func test_WaitingForPlayerToLoadURL_PlayerDidFailToBecomeReady_Action() {
         let state = expectState(for: .didPerform(.showAlert(text: "Unable to load media", button: "OK"), result: Void()), state: .waitingForPlayerToLoad(.foo))
         expect(state, equals: .readyToLoadURL(.foo))
     }
 
-    func testWaitingForPlayerPlay() {
-        let action = expectAction(
-            for: .didReceive(.playerDidBecomeReady),
-            state: .waitingForPlayerToLoad(.foo)
-        )
-        expect(action, equals: .player(.play))
-    }
-
-    func testWaitingForPlayerGetInfo() {
-        let action = expectAction(
-            for: .didPerform(.player(.play), result: Void()),
-            state: .waitingForPlayerToLoad(.foo)
-        )
-        expect(action, equals: .player(.getInfo))
-    }
-
-    func testWaitingForPlayerAdvance() {
-        typealias PlayerInfo = StateMachine.Action.Player.Info
-        let state = expectState(
-            for: .didPerform(.player(.getInfo), result: AudioBar.Action.Player.Info()),
-            state: .waitingForPlayerToLoad(.foo)
-        )
-        expect(state, equals: .readyToPlay(.init(isPlaying: true, currentTime: nil, info: .init())))
-    }
-
-    func testWaitingForPlayerReturn() {
-        let state = expectState(
-            for: .didPerform(.player(.load(nil)), result: Void()),
-            state: .waitingForPlayerToLoad(.foo)
-        )
-        expect(state, equals: .waitingForURL)
-    }
-
     // MARK: + User did tap play/pause button
 
-    func test_WaitingForPlayerToLoad_UserDidTapPlayPauseButton_1() {
+    func test_WaitingForPlayerToLoadURL_UserDidTapPlayPauseButton_Event1() {
         let action = expectAction(for: .didReceive(.userDidTapPlayPauseButton), state: .waitingForPlayerToLoad(.foo))
         expect(action, equals: .player(.load(nil)))
     }
 
-    func test_WaitingForPlayerToLoad_UserDidTapPlayPauseButton_2() {
+    func test_WaitingForPlayerToLoadURL_UserDidTapPlayPauseButton_Event2() {
         let action = expectAction(for: .didReceive(.userDidTapPauseButton), state: .waitingForPlayerToLoad(.foo))
         expect(action, equals: .player(.load(nil)))
     }
 
-    func test_WaitingForPlayerToLoad_UserDidTapPlayPauseButton_3() {
+    func test_WaitingForPlayerToLoadURL_UserDidTapPlayPauseButton_Action() {
         // WARNING: Duplicate (1)
         let state = expectState(for: .didPerform(.player(.load(nil)), result: Void()), state: .waitingForPlayerToLoad(.foo))
         expect(state, equals: .waitingForURL)
@@ -190,12 +177,12 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     // MARK: + Reset
 
-    func test_WaitingForPlayerToLoad_Reset1() {
+    func test_WaitingForPlayerToLoadURL_Reset_Event() {
         let action = expectAction(for: .didReceive(.reset), state: .waitingForPlayerToLoad(.foo))
         expect(action, equals: .player(.load(nil)))
     }
 
-    func test_WaitingForPlayerToLoad_Reset2() {
+    func test_WaitingForPlayerToLoadURL_Reset_Action() {
         // WARNING: Duplicate (2)
         let state = expectState(for: .didPerform(.player(.load(nil)), result: Void()), state: .waitingForPlayerToLoad(.foo))
         expect(state, equals: .waitingForURL)
@@ -203,298 +190,250 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     // MARK: - Ready to play
 
-    func test_ReadyToPlay_PlayPauseButtonImage1() {
+    func test_ReadyToPlay_View_PlayPauseButtonImage1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: true)))
         expect(view?.playPauseButtonImage, equals: .pause)
     }
 
-    func test_ReadyToPlay_PlayPauseButtonImage2() {
+    func test_ReadyToPlay_View_PlayPauseButtonImage2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: false)))
         expect(view?.playPauseButtonImage, equals: .play)
     }
 
-    func testPlaybackTime1() {
+    func test_ReadyToPlay_View_PlaybackTime1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: nil)))
         expect(view?.playbackTime, equals: "")
     }
 
-    func testPlaybackTime2() {
+    func test_ReadyToPlay_View_PlaybackTime2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 0, info: .init(duration: 1))))
         expect(view?.playbackTime, equals: "-0:01")
     }
 
-    func testPlaybackTime3() {
+    func test_ReadyToPlay_View_PlaybackTime3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 0, info: .init(duration: 61))))
         expect(view?.playbackTime, equals: "-1:01")
     }
 
-    func testPlaybackTime4() {
+    func test_ReadyToPlay_View_PlaybackTime4() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 20, info: .init(duration: 60))))
         expect(view?.playbackTime, equals: "-0:40")
     }
 
-    func testPlaybackDuration1() {
+    func test_ReadyToPlay_View_PlaybackDuration1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(duration: 1))))
         expect(view?.playbackDuration, equals: 1)
     }
 
-    func testPlaybackDuration2() {
+    func test_ReadyToPlay_View_PlaybackDuration2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(duration: 2))))
         expect(view?.playbackDuration, equals: 2)
     }
 
-    func testElapsedPlaybackTime1() {
+    func test_ReadyToPlay_View_ElapsedPlaybackTime1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: nil)))
         expect(view?.elapsedPlaybackTime, equals: 0)
     }
 
-    func testElapsedPlaybackTime2() {
+    func test_ReadyToPlay_View_ElapsedPlaybackTime2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 1)))
         expect(view?.elapsedPlaybackTime, equals: 1)
     }
 
-    func testElapsedPlaybackTime3() {
+    func test_ReadyToPlay_View_ElapsedPlaybackTime3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 2)))
         expect(view?.elapsedPlaybackTime, equals: 2)
     }
 
-    func testSeekIntervalWhenReadyToPlay() {
+    func test_ReadyToPlay_View_SeekIntervalWhenReadyToPlay() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init()))
         expect(view?.seekInterval, equals: 15)
     }
 
-    func testIsPlayCommandEnabled1() {
+    func test_ReadyToPlay_View_IsPlayCommandEnabled1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: true)))
         expect(view?.isPlayCommandEnabled, equals: false)
     }
 
-    func testIsPlayCommandEnabled2() {
+    func test_ReadyToPlay_View_IsPlayCommandEnabled2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: false, currentTime: 0, info: .init(duration: 1))))
         expect(view?.isPlayCommandEnabled, equals: true)
     }
 
-    func testIsPlayCommandEnabled3() {
+    func test_ReadyToPlay_View_IsPlayCommandEnabled3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: false, currentTime: 1, info: .init(duration: 1))))
         expect(view?.isPlayCommandEnabled, equals: false)
     }
 
-    func testIsPauseCommandEnabled1() {
+    func test_ReadyToPlay_View_IsPauseCommandEnabled1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: false)))
         expect(view?.isPauseCommandEnabled, equals: false)
     }
 
-    func testIsPauseCommandEnabled2() {
+    func test_ReadyToPlay_View_IsPauseCommandEnabled2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: true, currentTime: 0, info: .init(duration: 1))))
         expect(view?.isPauseCommandEnabled, equals: true)
     }
 
-    func testIsPauseCommandEnabled3() {
+    func test_ReadyToPlay_View_IsPauseCommandEnabled3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: true, currentTime: 1, info: .init(duration: 1))))
         expect(view?.isPauseCommandEnabled, equals: false)
     }
 
-    func testTrackName1() {
+    func test_ReadyToPlay_View_TrackName1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(title: nil))))
         expect(view?.trackName, equals: nil)
     }
 
-    func testTrackName2() {
+    func test_ReadyToPlay_View_TrackName2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(title: "1"))))
         expect(view?.trackName, equals: "1")
     }
 
-    func testTrackName3() {
+    func test_ReadyToPlay_View_TrackName3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(title: "2"))))
         expect(view?.trackName, equals: "2")
     }
 
-    func testArtistName1() {
+    func test_ReadyToPlay_View_ArtistName1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(artist: nil))))
         expect(view?.artistName, equals: nil)
     }
 
-    func testArtistName2() {
+    func test_ReadyToPlay_View_ArtistName2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(artist: "3"))))
         expect(view?.artistName, equals: "3")
     }
 
-    func testArtistName3() {
+    func test_ReadyToPlay_View_ArtistName3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(artist: "4"))))
         expect(view?.artistName, equals: "4")
     }
 
-    func testAlbumName1() {
+    func test_ReadyToPlay_View_AlbumName1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(album: nil))))
         expect(view?.albumName, equals: nil)
     }
 
-    func testAlbumName2() {
+    func test_ReadyToPlay_View_AlbumName2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(album: "5"))))
         expect(view?.albumName, equals: "5")
     }
 
-    func testAlbumName3() {
+    func test_ReadyToPlay_View_AlbumName3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(album: "6"))))
         expect(view?.albumName, equals: "6")
     }
 
-    func testArtworkData1() {
+    func test_ReadyToPlay_View_ArtworkData1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(artwork: nil))))
         expect(view?.artworkData, equals: nil)
     }
 
-    func testArtworkData2() {
+    func test_ReadyToPlay_View_ArtworkData2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(info: .init(artwork: Data()))))
         expect(view?.artworkData, equals: Data())
     }
 
-    func testIsLoadingIndicatorVisible1() {
+    func test_ReadyToPlay_View_IsLoadingIndicatorVisible1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: true, currentTime: nil)))
         expect(view?.isLoadingIndicatorVisible, equals: true)
     }
 
-    func testIsLoadingIndicatorVisible2() {
+    func test_ReadyToPlay_View_IsLoadingIndicatorVisible2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: false, currentTime: nil)))
         expect(view?.isLoadingIndicatorVisible, equals: false)
     }
 
-    func testIsLoadingIndicatorVisible3() {
+    func test_ReadyToPlay_View_IsLoadingIndicatorVisible3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: true, currentTime: 0)))
         expect(view?.isLoadingIndicatorVisible, equals: false)
     }
 
-    func testIsLoadingIndicatorVisible4() {
+    func test_ReadyToPlay_View_IsLoadingIndicatorVisible4() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: false, currentTime: 0)))
         expect(view?.isLoadingIndicatorVisible, equals: false)
     }
 
-    func testIsSeekBackButtonEnabled1() {
+    func test_ReadyToPlay_View_IsSeekBackButtonEnabled1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: nil)))
         expect(view?.isSeekBackButtonEnabled, equals: false)
     }
 
-    func testIsSeekBackButtonEnabled2() {
+    func test_ReadyToPlay_View_IsSeekBackButtonEnabled2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 0, info: .init(duration: 60))))
         expect(view?.isSeekBackButtonEnabled, equals: false)
     }
 
-    func testIsSeekBackButtonEnabled3() {
+    func test_ReadyToPlay_View_IsSeekBackButtonEnabled3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 1, info: .init(duration: 60))))
         expect(view?.isSeekBackButtonEnabled, equals: true)
     }
 
-    func testIsSeekBackButtonEnabled4() {
+    func test_ReadyToPlay_View_IsSeekBackButtonEnabled4() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 2, info: .init(duration: 60))))
         expect(view?.isSeekBackButtonEnabled, equals: true)
     }
 
-    func testIsSeekForwardButtonEnabled1() {
+    func test_ReadyToPlay_View_IsSeekForwardButtonEnabled1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: nil)))
         expect(view?.isSeekForwardButtonEnabled, equals: false)
     }
 
-    func testIsSeekForwardButtonEnabled2() {
+    func test_ReadyToPlay_View_IsSeekForwardButtonEnabled2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 58, info: .init(duration: 60))))
         expect(view?.isSeekForwardButtonEnabled, equals: true)
     }
 
-    func testIsSeekForwardButtonEnabled3() {
+    func test_ReadyToPlay_View_IsSeekForwardButtonEnabled3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 59, info: .init(duration: 60))))
         expect(view?.isSeekForwardButtonEnabled, equals: true)
     }
 
-    func testIsSeekForwardButtonEnabled4() {
+    func test_ReadyToPlay_View_IsSeekForwardButtonEnabled4() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 60, info: .init(duration: 60))))
         expect(view?.isSeekForwardButtonEnabled, equals: false)
     }
 
-    func testIsPlayPauseButtonEnabled1() {
+    func test_ReadyToPlay_View_IsPlayPauseButtonEnabled1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: nil)))
         expect(view?.isPlayPauseButtonEnabled, equals: true)
     }
 
-    func testIsPlayPauseButtonEnabled2() {
+    func test_ReadyToPlay_View_IsPlayPauseButtonEnabled2() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 60, info: .init(duration: 60))))
         expect(view?.isPlayPauseButtonEnabled, equals: false)
     }
 
-    func testIsPlayPauseButtonEnabled3() {
+    func test_ReadyToPlay_View_IsPlayPauseButtonEnabled3() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 59, info: .init(duration: 60))))
         expect(view?.isPlayPauseButtonEnabled, equals: true)
     }
 
-    func testIsPlayPauseButtonEnabled4() {
+    func test_ReadyToPlay_View_IsPlayPauseButtonEnabled4() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: 58, info: .init(duration: 60))))
         expect(view?.isPlayPauseButtonEnabled, equals: true)
     }
 
-    func testReadyToPlayIdle() {
+    func test_ReadyToPlay_Idle() {
         expectIdle(for: .didPresent, state: .readyToPlay(.init()))
     }
 
-    func testPlayerDidUpdateCurrentTime1() {
+    // MARK: + Player did update current time
+
+    func test_ReadyToPlay_PlayerDidUpdateCurrentTime_Event1() {
         let state = expectState(for: .didReceive(.playerDidUpdateCurrentTime(1)), state: .readyToPlay(.init(currentTime: 0)))
         expect(state, equals: .readyToPlay(.init(currentTime: 1)))
     }
 
-    func testPlayerDidUpdateCurrentTime2() {
+    func test_ReadyToPlay_PlayerDidUpdateCurrentTime_Event2() {
         let state = expectState(for: .didReceive(.playerDidUpdateCurrentTime(2)), state: .readyToPlay(.init(currentTime: 1)))
         expect(state, equals: .readyToPlay(.init(currentTime: 2)))
     }
 
-    func testPlayerDidPlayToEnd() {
+    func test_ReadyToPlay_PlayerDidUpdateCurrentTime_Event3() {
         let state = expectState(for: .didReceive(.playerDidPlayToEnd), state: .readyToPlay(.init(isPlaying: true, currentTime: 0, info: .init(duration: 60))))
         expect(state, equals: .readyToPlay(.init(isPlaying: false, currentTime: 60, info: .init(duration: 60))))
-    }
-
-    func testUserDidTapSeekBackButton1() {
-        let action = expectAction(for: .didReceive(.userDidTapSeekBackButton), state: .readyToPlay(.init(currentTime: 60)))
-            expect(action, equals: .player(.setCurrentTime(60 - AudioBar.State.seekInterval)))
-    }
-
-    func testUserDidTapSeekBackButton2() {
-        let action = expectAction(for: .didReceive(.userDidTapSeekBackButton), state: .readyToPlay(.init(currentTime: 120)))
-        expect(action, equals: .player(.setCurrentTime(120 - AudioBar.State.seekInterval)))
-    }
-
-    func testUserDidTapSeekBackButtonNearBeginning1() {
-        let action = expectAction(for: .didReceive(.userDidTapSeekBackButton), state: .readyToPlay(.init(currentTime: AudioBar.State.seekInterval - 1)))
-        expect(action, equals: .player(.setCurrentTime(0)))
-    }
-
-    func testUserDidTapSeekBackButtonNearBeginning2() {
-        let action = expectAction(for: .didReceive(.userDidTapSeekBackButton), state: .readyToPlay(.init(currentTime: AudioBar.State.seekInterval - 2)))
-        expect(action, equals: .player(.setCurrentTime(0)))
-    }
-
-    func testPlayerDidSetCurrentTime1() {
-        let state = expectState(for: .didPerform(.player(.setCurrentTime(60)), result: Void()), state: .readyToPlay(.init(currentTime: nil)))
-        expect(state, equals: .readyToPlay(.init(currentTime: 60)))
-    }
-
-    func testPlayerDidSetCurrentTime2() {
-        let state = expectState(for: .didPerform(.player(.setCurrentTime(120)), result: Void()), state: .readyToPlay(.init(currentTime: 60)))
-        expect(state, equals: .readyToPlay(.init(currentTime: 120)))
-    }
-
-    func testUserDidTapSeekForwardButton1() {
-        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 0, info: .init(duration: 60))))
-        expect(action, equals: .player(.setCurrentTime(0 + AudioBar.State.seekInterval)))
-    }
-
-    func testUserDidTapSeekForwardButton2() {
-        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 1, info: .init(duration: 60))))
-        expect(action, equals: .player(.setCurrentTime(1 + AudioBar.State.seekInterval)))
-    }
-
-    func testUserDidTapSeekForwardButtonNearEnd1() {
-        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 60 - 1, info: .init(duration: 60))))
-        expect(action, equals: .player(.setCurrentTime(60)))
-    }
-
-    func testUserDidTapSeekForwardButtonNearEnd2() {
-        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 60 - 2, info: .init(duration: 60))))
-        expect(action, equals: .player(.setCurrentTime(60)))
     }
 
     // MARK: + User did tap play/pause button
@@ -527,6 +466,58 @@ class AudioBarTests: XCTestCase, StateMachineTests {
     func test_ReadyToPlay_UserDidTapPlayPauseButton_Action2() {
         let state = expectState(for: .didPerform(.player(.pause), result: Void()), state: .readyToPlay(.init(isPlaying: true)))
         expect(state, equals: .readyToPlay(.init(isPlaying: false)))
+    }
+
+    // MARK: + User did tap seek back/forward button
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Event1() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekBackButton), state: .readyToPlay(.init(currentTime: 60)))
+        expect(action, equals: .player(.setCurrentTime(60 - AudioBar.State.seekInterval)))
+    }
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Event2() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekBackButton), state: .readyToPlay(.init(currentTime: 120)))
+        expect(action, equals: .player(.setCurrentTime(120 - AudioBar.State.seekInterval)))
+    }
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Event3() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekBackButton), state: .readyToPlay(.init(currentTime: AudioBar.State.seekInterval - 1)))
+        expect(action, equals: .player(.setCurrentTime(0)))
+    }
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Event4() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekBackButton), state: .readyToPlay(.init(currentTime: AudioBar.State.seekInterval - 2)))
+        expect(action, equals: .player(.setCurrentTime(0)))
+    }
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Event5() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 0, info: .init(duration: 60))))
+        expect(action, equals: .player(.setCurrentTime(0 + AudioBar.State.seekInterval)))
+    }
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Event6() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 1, info: .init(duration: 60))))
+        expect(action, equals: .player(.setCurrentTime(1 + AudioBar.State.seekInterval)))
+    }
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Event7() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 60 - 1, info: .init(duration: 60))))
+        expect(action, equals: .player(.setCurrentTime(60)))
+    }
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Event8() {
+        let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 60 - 2, info: .init(duration: 60))))
+        expect(action, equals: .player(.setCurrentTime(60)))
+    }
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Action1() {
+        let state = expectState(for: .didPerform(.player(.setCurrentTime(60)), result: Void()), state: .readyToPlay(.init(currentTime: nil)))
+        expect(state, equals: .readyToPlay(.init(currentTime: 60)))
+    }
+
+    func test_ReadyToPlay_UserDidTapSeekBackForwardButton_Action2() {
+        let state = expectState(for: .didPerform(.player(.setCurrentTime(120)), result: Void()), state: .readyToPlay(.init(currentTime: 60)))
+        expect(state, equals: .readyToPlay(.init(currentTime: 120)))
     }
 
     // MARK: + Reset

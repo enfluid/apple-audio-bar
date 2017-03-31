@@ -26,7 +26,10 @@ public struct AudioBar: StateMachine {
         public struct ReadyToPlay {
 
             var isPlaying: Bool
+
+            // WARNING: Unnecessary optional value
             var currentTime: TimeInterval?
+
             var info: Action.Player.Info
 
         }
@@ -242,7 +245,7 @@ public struct AudioBar: StateMachine {
 
         }
 
-        // MARK: - Waiting for player to load
+        // MARK: - Waiting for player to load URL
 
         switch state {
 
@@ -428,6 +431,8 @@ public struct AudioBar: StateMachine {
 
             }
 
+            // WARNING: The following MARK conflates 2 events into one
+
             // MARK: + Player did update current time
 
             switch trigger {
@@ -484,7 +489,6 @@ public struct AudioBar: StateMachine {
             switch trigger {
 
             case .didReceive(.userDidTapSeekBackButton):
-                // Get rid of 'currentTime' optional
                 let currentTime = max(0, readyToPlay.currentTime! - State.seekInterval)
                 return .perform(.player(.setCurrentTime(currentTime)))
 
