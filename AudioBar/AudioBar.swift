@@ -4,15 +4,13 @@ import Stateful
 public struct AudioBar: StateMachine {
 
     public enum Event {
-        public enum PlayPauseButton {
-            case userDidTapPlayButton
-            case userDidTapPauseButton
-        }
 
         case prepareToLoad(URL?)
         case reset
 
-        case playPauseButton(PlayPauseButton)
+        case userDidTapPlayButton
+        case userDidTapPlayPauseButton
+        case userDidTapPauseButton
         case userDidTapSeekBackButton
         case userDidTapSeekForwardButton
 
@@ -56,7 +54,6 @@ public struct AudioBar: StateMachine {
     }
 
     public struct View {
-        let playPauseButtonEvent: Event.PlayPauseButton
         let isPlayPauseButtonEnabled: Bool
         let areSeekButtonsHidden: Bool
         let playbackTime: String
@@ -95,7 +92,6 @@ public struct AudioBar: StateMachine {
             case .didMutate:
                 return .present(
                     .init(
-                        playPauseButtonEvent: .userDidTapPlayButton,
                         isPlayPauseButtonEnabled: false,
                         areSeekButtonsHidden: true,
                         playbackTime: "",
@@ -166,7 +162,6 @@ public struct AudioBar: StateMachine {
             case .didMutate:
                 return .present(
                     .init(
-                        playPauseButtonEvent: .userDidTapPlayButton,
                         isPlayPauseButtonEnabled: true,
                         areSeekButtonsHidden: true,
                         playbackTime: "",
@@ -197,7 +192,7 @@ public struct AudioBar: StateMachine {
 
             switch trigger {
 
-            case .didReceive(.playPauseButton(.userDidTapPlayButton)):
+            case .didReceive(.userDidTapPlayButton):
                 return .perform(.player(.load(url)))
 
             case .didPerform(.player(.load(.some(url))), result: _ as Void):
@@ -236,7 +231,6 @@ public struct AudioBar: StateMachine {
             case .didMutate:
                 return .present(
                     .init(
-                        playPauseButtonEvent: .userDidTapPauseButton,
                         isPlayPauseButtonEnabled: true,
                         areSeekButtonsHidden: true,
                         playbackTime: "",
@@ -361,7 +355,6 @@ public struct AudioBar: StateMachine {
                 }
                 return .present(
                     .init(
-                        playPauseButtonEvent: readyToPlay.isPlaying ? .userDidTapPauseButton : .userDidTapPlayButton,
                         isPlayPauseButtonEnabled: isPlayPauseButtonEnabled,
                         areSeekButtonsHidden: false,
                         playbackTime: remainingTimeText,
@@ -406,6 +399,15 @@ public struct AudioBar: StateMachine {
             default:
                 break
 
+            }
+
+            // MARK: + User did tap play/pause button
+
+            switch trigger {
+
+            default:
+                break
+                
             }
 
             // MARK: + User did tap seek back/forward button

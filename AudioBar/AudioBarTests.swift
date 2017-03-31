@@ -19,7 +19,6 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     func test_WaitingForURL_1() {
         let view = expectView(for: .didMutate, state: .waitingForURL)
-        expect(view?.playPauseButtonEvent, equals: .userDidTapPlayButton)
         expect(view?.isPlayPauseButtonEnabled, equals: false)
         expect(view?.areSeekButtonsHidden, equals: true)
         expect(view?.playbackTime, equals: "")
@@ -62,7 +61,6 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     func test_ReadyToLoadURL_1() {
         let view = expectView(for: .didMutate, state: .readyToLoadURL(.foo))
-        expect(view?.playPauseButtonEvent, equals: .userDidTapPlayButton)
         expect(view?.isPlayPauseButtonEnabled, equals: true)
         expect(view?.areSeekButtonsHidden, equals: true)
         expect(view?.isPlayCommandEnabled, equals: true)
@@ -86,7 +84,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
     // MARK: + User did tap play button
 
     func test_ReadyToLoadURL_UserDidTapPlayButton_1() {
-        let action = expectAction(for: .didReceive(.playPauseButton(.userDidTapPlayButton)), state: .readyToLoadURL(.foo))
+        let action = expectAction(for: .didReceive(.userDidTapPlayButton), state: .readyToLoadURL(.foo))
         expect(action, equals: .player(.load(URL.foo)))
     }
 
@@ -106,7 +104,6 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     func testWaitingForPlayerView() {
         let view = expectView(for: .didMutate, state: .waitingForPlayerToLoad(.foo))
-        expect(view?.playPauseButtonEvent, equals: .userDidTapPauseButton)
         expect(view?.isPlayPauseButtonEnabled, equals: true)
         expect(view?.isPlayCommandEnabled, equals: false)
         expect(view?.isPauseCommandEnabled, equals: true)
@@ -379,16 +376,6 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(view?.isSeekForwardButtonEnabled, equals: false)
     }
 
-    func testPlayPauseButtonMode1() {
-        let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: false)))
-        expect(view?.playPauseButtonEvent, equals: .userDidTapPlayButton)
-    }
-
-    func testPlayPauseButtonMode2() {
-        let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: true)))
-        expect(view?.playPauseButtonEvent, equals: .userDidTapPauseButton)
-    }
-
     func testIsPlayPauseButtonEnabled1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: nil)))
         expect(view?.isPlayPauseButtonEnabled, equals: true)
@@ -477,6 +464,12 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         let action = expectAction(for: .didReceive(.userDidTapSeekForwardButton), state: .readyToPlay(.init(currentTime: 60 - 2, info: .init(duration: 60))))
         expect(action, equals: .player(.setCurrentTime(60)))
     }
+
+    // MARK: + User did tap play pause button
+
+//    func test_ReadyToPlay_UserDidTapPlayPauseButton_1() {
+//        let action = expectAction(for: .didReceive(.userDidTapPlay
+//    }
 
     // MARK: + Reset
 
