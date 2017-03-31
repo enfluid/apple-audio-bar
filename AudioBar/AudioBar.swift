@@ -5,7 +5,7 @@ public struct AudioBar: StateMachine {
 
     public enum Event {
 
-        case prepareToLoad(URL?)
+        case prepareToLoad(URL)
         case reset
 
         case userDidTapPlayButton
@@ -141,11 +141,7 @@ public struct AudioBar: StateMachine {
             switch trigger {
 
             case .didReceive(.prepareToLoad(let url)):
-                if let url = url {
-                    return .mutate(.readyToLoadURL(url))
-                } else {
-                    return .mutate(.waitingForURL) // This basically can be idle
-                }
+                return .mutate(.readyToLoadURL(url))
 
             default:
                 break
@@ -516,112 +512,5 @@ public struct AudioBar: StateMachine {
         return .raise(.invalidStateTransition)
 
     }
-
-    //        switch event {
-    //        case .prepareToLoad(let url):
-    //            let isPlayerActive: Bool = {
-    //                switch state {
-    //                case .waitingForURL:
-    //                    return false
-    //                case .readyToLoadURL:
-    //                    return false
-    //                case .waitingForPlayerToBecomeReadyToPlayURL:
-    //                    return true
-    //                case .readyToPlay:
-    //                    return true
-    //                }
-    //            }()
-    //            if isPlayerActive {
-    //                perform(.player(.loadURL(nil)))
-    //            }
-    //            if let url = url {
-    //                state = .readyToLoadURL(url)
-    //            } else {
-    //                state = .waitingForURL
-    //            }
-    //        case .playPauseButton(.userDidTapPlayButton):
-    //            switch state {
-    //            case .waitingForURL:
-    //                return .failure(.noURL)
-    //            case .readyToLoadURL(at: let url):
-    //                state = .waitingForPlayerToBecomeReadyToPlayURL(url)
-    //                perform(.player(.loadURL(url)))
-    //            case .waitingForPlayerToBecomeReadyToPlayURL:
-    //                return .failure(.waitingToBecomeReadyToPlay)
-    //            case .readyToPlay(var readyToPlay):
-    //                guard !readyToPlay.isPlaying else { return .failure(.playing) }
-    //                readyToPlay.isPlaying = true
-    //                state = .readyToPlay(readyToPlay)
-    //                perform(.player(.play))
-    //            }
-    //        case .playPauseButton(.userDidTapPauseButton):
-    //            switch state {
-    //            case .waitingForURL:
-    //                return .failure(.noURL)
-    //            case .readyToLoadURL:
-    //                return .failure(.readyToLoadURL)
-    //            case .waitingForPlayerToBecomeReadyToPlayURL(let url):
-    //                state = .readyToLoadURL(url)
-    //                perform(.player(.loadURL(nil)))
-    //            case .readyToPlay(var readyToPlay):
-    //                guard readyToPlay.isPlaying else { return .failure(.notPlaying) }
-    //                readyToPlay.isPlaying = false
-    //                state = .readyToPlay(readyToPlay)
-    //                perform(.player(.pause))
-    //            }
-    //        case .userDidTapSeekBackButton:
-    //            guard case .readyToPlay(var readyToPlay) = state else {
-    //                return .failure(.notReadyToPlay)
-    //            }
-    //            readyToPlay.currentTime = max(0, readyToPlay.currentTime! - State.seekInterval)
-    //            state = .readyToPlay(readyToPlay)
-    //            perform(.player(.setCurrentTime(readyToPlay.currentTime!)))
-    //        case .userDidTapSeekForwardButton:
-    //            guard case .readyToPlay(var readyToPlay) = state else {
-    //                return .failure(.notReadyToPlay)
-    //            }
-    //
-    //            let currentTime = min(readyToPlay.duration, readyToPlay.currentTime! + State.seekInterval)
-    //            readyToPlay.currentTime = currentTime
-    //            perform(.player(.setCurrentTime(currentTime)))
-    //
-    //            if currentTime == readyToPlay.duration && readyToPlay.isPlaying {
-    //                readyToPlay.isPlaying = false
-    //                perform(.player(.pause))
-    //            }
-    //
-    //            state = .readyToPlay(readyToPlay)
-    //        case .playerDidBecomeReady(withDuration: let duration, and: let audioTags):
-    //            guard case .waitingForPlayerToBecomeReadyToPlayURL = state else {
-    //                return .failure(.notWaitingToBecomeReadyToPlay)
-    //            }
-    //            state = .readyToPlay(.init(isPlaying: true, duration: duration, currentTime: nil, audioTags: audioTags))
-    //            perform(.player(.play))
-    //
-    //        case .playerDidPlayToEnd:
-    //            guard case .readyToPlay(var readyToPlay) = state else {
-    //                return .failure(.notReadyToPlay)
-    //            }
-    //            guard readyToPlay.isPlaying else {
-    //                return .failure(.notPlaying)
-    //            }
-    //            readyToPlay.currentTime = readyToPlay.duration
-    //            readyToPlay.isPlaying = false
-    //            state = .readyToPlay(readyToPlay)
-    //        case .playerDidUpdateCurrentTime(let currentTime):
-    //            guard case .readyToPlay(var readyToPlay) = state else {
-    //                return .failure(.notReadyToPlay)
-    //            }
-    //            readyToPlay.currentTime = currentTime
-    //            state = .readyToPlay(readyToPlay)
-    //        case .playerDidFailToBecomeReady:
-    //            guard case .waitingForPlayerToBecomeReadyToPlayURL(let url) = state else {
-    //                return .failure(.notWaitingToBecomeReadyToPlay)
-    //            }
-    //            state = .readyToLoadURL(url)
-    //            perform(.showAlert(text: "Unable to load media", button: "OK"))
-    //        }
-    //        return .success()
-    //    }
 
 }

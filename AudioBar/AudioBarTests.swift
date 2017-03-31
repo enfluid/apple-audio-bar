@@ -41,14 +41,9 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     // MARK: + Prepare to load URL
 
-    func test_WaitingForURL_PrepareToLoadURL_1() {
+    func test_WaitingForURL_PrepareToLoadURL_Event() {
         let state = expectState(for: .didReceive(.prepareToLoad(.foo)), state: .waitingForURL)
         expect(state, equals: .readyToLoadURL(URL.foo))
-    }
-
-    func test_WaitingForURL_PrepareToLoadURL_2() {
-        let state = expectState(for: .didReceive(.prepareToLoad(nil)), state: .waitingForURL)
-        expect(state, equals: .waitingForURL)
     }
 
     // MARK: + Reset
