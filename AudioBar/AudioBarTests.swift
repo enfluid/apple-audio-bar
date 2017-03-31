@@ -555,15 +555,6 @@ extension AudioBar.State.ReadyToPlay {
     }
 }
 
-extension AudioTags {
-    init(title: String? = nil, artistName: String? = nil, albumName: String? = nil, artworkData: Data? = nil) {
-        self.title = title
-        self.artistName = artistName
-        self.albumName = albumName
-        self.artworkData = artworkData
-    }
-}
-
 extension URL {
 
     static let foo = URL(string: "foo")!
