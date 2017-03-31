@@ -67,6 +67,12 @@ public struct AudioBar: StateMachine {
 
     public struct View {
 
+        enum PlayPauseButtonImage {
+            case play
+            case pause
+        }
+
+        let playPauseButtonImage: PlayPauseButtonImage
         let isPlayPauseButtonEnabled: Bool
         let areSeekButtonsHidden: Bool
         let playbackTime: String
@@ -110,6 +116,7 @@ public struct AudioBar: StateMachine {
             case .didMutate:
                 return .present(
                     .init(
+                        playPauseButtonImage: .play,
                         isPlayPauseButtonEnabled: false,
                         areSeekButtonsHidden: true,
                         playbackTime: "",
@@ -176,6 +183,7 @@ public struct AudioBar: StateMachine {
             case .didMutate:
                 return .present(
                     .init(
+                        playPauseButtonImage: .play,
                         isPlayPauseButtonEnabled: true,
                         areSeekButtonsHidden: true,
                         playbackTime: "",
@@ -245,6 +253,7 @@ public struct AudioBar: StateMachine {
             case .didMutate:
                 return .present(
                     .init(
+                        playPauseButtonImage: .pause,
                         isPlayPauseButtonEnabled: true,
                         areSeekButtonsHidden: true,
                         playbackTime: "",
@@ -353,6 +362,10 @@ public struct AudioBar: StateMachine {
             switch trigger {
 
             case .didMutate:
+                let playPauseButtonImage: View.PlayPauseButtonImage =
+                    readyToPlay.isPlaying
+                        ? .pause
+                        : .play
                 var remainingTime: TimeInterval? {
                     guard let currentTime = readyToPlay.currentTime else {
                         return nil
@@ -388,6 +401,7 @@ public struct AudioBar: StateMachine {
                 }
                 return .present(
                     .init(
+                        playPauseButtonImage: playPauseButtonImage,
                         isPlayPauseButtonEnabled: isPlayPauseButtonEnabled,
                         areSeekButtonsHidden: false,
                         playbackTime: remainingTimeText,

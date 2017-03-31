@@ -19,6 +19,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     func test_WaitingForURL_1() {
         let view = expectView(for: .didMutate, state: .waitingForURL)
+        expect(view?.playPauseButtonImage, equals: .play)
         expect(view?.isPlayPauseButtonEnabled, equals: false)
         expect(view?.areSeekButtonsHidden, equals: true)
         expect(view?.playbackTime, equals: "")
@@ -56,6 +57,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     func test_ReadyToLoadURL_1() {
         let view = expectView(for: .didMutate, state: .readyToLoadURL(.foo))
+        expect(view?.playPauseButtonImage, equals: .play)
         expect(view?.isPlayPauseButtonEnabled, equals: true)
         expect(view?.areSeekButtonsHidden, equals: true)
         expect(view?.isPlayCommandEnabled, equals: true)
@@ -104,6 +106,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     func testWaitingForPlayerView() {
         let view = expectView(for: .didMutate, state: .waitingForPlayerToLoad(.foo))
+        expect(view?.playPauseButtonImage, equals: .pause)
         expect(view?.isPlayPauseButtonEnabled, equals: true)
         expect(view?.isPlayCommandEnabled, equals: false)
         expect(view?.isPauseCommandEnabled, equals: true)
@@ -199,6 +202,16 @@ class AudioBarTests: XCTestCase, StateMachineTests {
     }
 
     // MARK: - Ready to play
+
+    func test_ReadyToPlay_PlayPauseButtonImage1() {
+        let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: true)))
+        expect(view?.playPauseButtonImage, equals: .pause)
+    }
+
+    func test_ReadyToPlay_PlayPauseButtonImage2() {
+        let view = expectView(for: .didMutate, state: .readyToPlay(.init(isPlaying: false)))
+        expect(view?.playPauseButtonImage, equals: .play)
+    }
 
     func testPlaybackTime1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: nil)))
