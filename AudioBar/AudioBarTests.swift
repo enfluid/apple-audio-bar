@@ -541,18 +541,6 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(state, equals: .waitingForURL)
     }
 
-    //    func testUserDidTapPauseButtonWhenWaitingForPlayerToBecomeReadyToPlayURL() {
-    //        let update = expectUpdate(for: .playPauseButton(.userDidTapPauseButton), state: .waitingForPlayerToBecomeReadyToPlayURL(.arbitrary))
-    //        expect(update?.state, .readyToLoadURL(.arbitrary))
-    //        expect(update?.action, .player(.loadURL(nil)))
-    //    }
-    //
-    //    func testUserDidTapPauseButtonWhenReadyToPlayAndPlaying() {
-    //        let update = expectUpdate(for: .playPauseButton(.userDidTapPauseButton), state: .readyToPlay(.init(isPlaying: true)))
-    //        expect(update?.state, .readyToPlay(.init(isPlaying: false)))
-    //        expect(update?.action, .player(.pause))
-    //    }
-
 }
 
 extension AudioBar.State.ReadyToPlay {
