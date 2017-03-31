@@ -81,14 +81,19 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expectIdle(for: .didPresent, state: .readyToLoadURL(.foo))
     }
 
-    // MARK: + User did tap play button
+    // MARK: + User did tap play/pause button
 
-    func test_ReadyToLoadURL_UserDidTapPlayButton_1() {
+    func test_ReadyToLoadURL_UserDidTapPlayPauseButton_1() {
         let action = expectAction(for: .didReceive(.userDidTapPlayButton), state: .readyToLoadURL(.foo))
         expect(action, equals: .player(.load(URL.foo)))
     }
 
-    func test_ReadyToLoadURL_UserDidTapPlayButton_2() {
+    func test_ReadyToLoadURL_UserDidTapPlayPauseButton_2() {
+        let action = expectAction(for: .didReceive(.userDidTapPlayPauseButton), state: .readyToLoadURL(.foo))
+        expect(action, equals: .player(.load(URL.foo)))
+    }
+
+    func test_ReadyToLoadURL_UserDidTapPlayPauseButton_3() {
         let state = expectState(for: .didPerform(.player(.load(URL.foo)), result: Void()), state: .readyToLoadURL(.foo))
         expect(state, equals: .waitingForPlayerToLoad(.foo))
     }
@@ -167,6 +172,24 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(state, equals: .waitingForURL)
     }
 
+    // MARK: + User did tap play/pause button
+
+    func test_WaitingForPlayerToLoad_UserDidTapPlayPauseButton_1() {
+        let action = expectAction(for: .didReceive(.userDidTapPlayPauseButton), state: .waitingForPlayerToLoad(.foo))
+        expect(action, equals: .player(.load(nil)))
+    }
+
+    func test_WaitingForPlayerToLoad_UserDidTapPlayPauseButton_2() {
+        let action = expectAction(for: .didReceive(.userDidTapPauseButton), state: .waitingForPlayerToLoad(.foo))
+        expect(action, equals: .player(.load(nil)))
+    }
+
+    func test_WaitingForPlayerToLoad_UserDidTapPlayPauseButton_3() {
+        // TODO: Duplicate (1)
+        let state = expectState(for: .didPerform(.player(.load(nil)), result: Void()), state: .waitingForPlayerToLoad(.foo))
+        expect(state, equals: .waitingForURL)
+    }
+
     // MARK: + Reset
 
     func test_WaitingForPlayerToLoad_Reset1() {
@@ -175,6 +198,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
     }
 
     func test_WaitingForPlayerToLoad_Reset2() {
+        // TODO: Duplicate (2)
         let state = expectState(for: .didPerform(.player(.load(nil)), result: Void()), state: .waitingForPlayerToLoad(.foo))
         expect(state, equals: .waitingForURL)
     }

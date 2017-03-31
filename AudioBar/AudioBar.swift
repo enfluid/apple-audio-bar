@@ -206,11 +206,11 @@ public struct AudioBar: StateMachine {
 
             }
 
-            // MARK: + User did tap play button
+            // MARK: + User did tap play/pause button
 
             switch trigger {
 
-            case .didReceive(.userDidTapPlayButton):
+            case .didReceive(.userDidTapPlayButton), .didReceive(.userDidTapPlayPauseButton):
                 return .perform(.player(.load(url)))
 
             case .didPerform(.player(.load(.some(url))), result: _ as Void):
@@ -309,6 +309,25 @@ public struct AudioBar: StateMachine {
 
             }
 
+            // MARK: + User did tap play/pause button
+
+            switch trigger {
+
+            case .didReceive(.userDidTapPlayPauseButton):
+                return .perform(.player(.load(nil)))
+
+            case .didReceive(.userDidTapPauseButton):
+                return .perform(.player(.load(nil)))
+
+            case .didPerform(.player(.load(nil)), result: _ as Void):
+                // TODO: Duplicate(1)
+                return .mutate(.waitingForURL)
+
+            default:
+                break
+
+            }
+
             // MARK: + Reset
 
             switch trigger {
@@ -317,6 +336,7 @@ public struct AudioBar: StateMachine {
                 return .perform(.player(.load(nil)))
 
             case .didPerform(.player(.load(nil)), result: _ as Void):
+                // TODO: Duplicate(2)
                 return .mutate(.waitingForURL)
 
             default:
