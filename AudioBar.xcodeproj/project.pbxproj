@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		913FE8B61E8E8EAA00F92B89 /* AVAsset+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 913FE8B51E8E8EAA00F92B89 /* AVAsset+Metadata.swift */; };
 		916289EE1E1E93970004D27E /* AudioBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 916289ED1E1E93960004D27E /* AudioBarTests.swift */; };
 		91930F3E1E03158F006A0091 /* AudioBar.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91930F341E03158F006A0091 /* AudioBar.framework */; };
 		91930F451E03158F006A0091 /* AudioBar.h in Headers */ = {isa = PBXBuildFile; fileRef = 91930F371E03158F006A0091 /* AudioBar.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -17,7 +18,6 @@
 		91C186461E031A4D006ECAD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91C186451E031A4D006ECAD8 /* Assets.xcassets */; };
 		91F077E21E8D3D62000B5A61 /* Stateful.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F077E11E8D3D62000B5A61 /* Stateful.framework */; };
 		91F077E31E8D3D62000B5A61 /* Stateful.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F077E11E8D3D62000B5A61 /* Stateful.framework */; };
-		B69430781E819FF800A6E830 /* AudioTags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69430771E819FF800A6E830 /* AudioTags.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -31,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		913FE8B51E8E8EAA00F92B89 /* AVAsset+Metadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVAsset+Metadata.swift"; sourceTree = "<group>"; };
 		916289ED1E1E93960004D27E /* AudioBarTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioBarTests.swift; sourceTree = "<group>"; };
 		916289EF1E1E93BA0004D27E /* InfoTests.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = InfoTests.plist; sourceTree = "<group>"; };
 		91930F341E03158F006A0091 /* AudioBar.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AudioBar.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -43,7 +44,6 @@
 		91C1561C1E6F2C6800FA2740 /* CMTime+TimeInterval.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CMTime+TimeInterval.swift"; sourceTree = "<group>"; };
 		91C186451E031A4D006ECAD8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		91F077E11E8D3D62000B5A61 /* Stateful.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Stateful.framework; path = Carthage/Build/iOS/Stateful.framework; sourceTree = "<group>"; };
-		B69430771E819FF800A6E830 /* AudioTags.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioTags.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,8 +101,8 @@
 				91930F6F1E0315BC006A0091 /* AudioBarViewController.swift */,
 				91930F701E0315BC006A0091 /* AudioBar.swift */,
 				916289ED1E1E93960004D27E /* AudioBarTests.swift */,
-				B69430771E819FF800A6E830 /* AudioTags.swift */,
 				91C1561C1E6F2C6800FA2740 /* CMTime+TimeInterval.swift */,
+				913FE8B51E8E8EAA00F92B89 /* AVAsset+Metadata.swift */,
 				91C186451E031A4D006ECAD8 /* Assets.xcassets */,
 				91930F381E03158F006A0091 /* Info.plist */,
 				916289EF1E1E93BA0004D27E /* InfoTests.plist */,
@@ -245,10 +245,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				913FE8B61E8E8EAA00F92B89 /* AVAsset+Metadata.swift in Sources */,
 				91930F731E0315BC006A0091 /* AudioBar.swift in Sources */,
 				91C1561D1E6F2C6800FA2740 /* CMTime+TimeInterval.swift in Sources */,
 				91930F721E0315BC006A0091 /* AudioBarViewController.swift in Sources */,
-				B69430781E819FF800A6E830 /* AudioTags.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
