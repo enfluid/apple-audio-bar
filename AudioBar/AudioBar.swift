@@ -75,14 +75,6 @@ public struct AudioBar: StateMachine {
     }
 
     public enum Error {
-
-        case noURL
-        case readyToLoadURL
-        case notReadyToPlay
-        case playing
-        case notPlaying
-        case waitingToBecomeReadyToPlay
-        case notWaitingToBecomeReadyToPlay
         case invalidStateTransition // Not tested
     }
 
@@ -569,9 +561,5 @@ public struct AudioBar: StateMachine {
     //        }
     //        return .success()
     //    }
-    
-    //    public static func view(for state: State) -> Result<View, Failure> {
-    
-    //    }
-    
+
 }

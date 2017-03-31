@@ -428,16 +428,6 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(state, equals: .readyToPlay(.init(isPlaying: false, currentTime: 60, info: .init(duration: 60))))
     }
 
-    /*
-     
-     Seeking:
- 
-     1. .player(.setCurrentTime(...))
-     2. .player(.pause) if currentTime == duration
-     3. .mutate(currentTime: ...)
- 
-    */
-
     func testUserDidTapSeekBackButton1() {
         let action = expectAction(for: .didReceive(.userDidTapSeekBackButton), state: .readyToPlay(.init(currentTime: 60)))
             expect(action, equals: .player(.setCurrentTime(60 - AudioBar.State.seekInterval)))
@@ -500,23 +490,6 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(state, equals: .waitingForURL)
     }
 
-
-    //
-    //    func testUserDidTapPlayButtonWhenWaitingForURL() {
-    //        let failure = expectFailure(for: .playPauseButton(.userDidTapPlayButton), state: .waitingForURL)
-    //        expect(failure, .noURL)
-    //    }
-    //
-    //    func testUserDidTapPlayButtonWhenWaitingForPlayerToBecomeReadyToPlayURL() {
-    //        let failure = expectFailure(for: .playPauseButton(.userDidTapPlayButton), state: .waitingForPlayerToBecomeReadyToPlayURL(.arbitrary))
-    //        expect(failure, .waitingToBecomeReadyToPlay)
-    //    }
-    //
-    //    func testUserDidTapPlayButtonWhenReadyToPlayAndPlaying() {
-    //        let failure = expectFailure(for: .playPauseButton(.userDidTapPlayButton), state: .readyToPlay(.init(isPlaying: true)))
-    //        expect(failure, .playing)
-    //    }
-    //
     //    func testUserDidTapPauseButtonWhenWaitingForPlayerToBecomeReadyToPlayURL() {
     //        let update = expectUpdate(for: .playPauseButton(.userDidTapPauseButton), state: .waitingForPlayerToBecomeReadyToPlayURL(.arbitrary))
     //        expect(update?.state, .readyToLoadURL(.arbitrary))
@@ -528,29 +501,8 @@ class AudioBarTests: XCTestCase, StateMachineTests {
     //        expect(update?.state, .readyToPlay(.init(isPlaying: false)))
     //        expect(update?.action, .player(.pause))
     //    }
-    //
-    //    func testUserDidTapPauseButtonWhenWaitingForURL() {
-    //        let failure = expectFailure(for: .playPauseButton(.userDidTapPauseButton), state: .waitingForURL)
-    //        expect(failure, .noURL)
-    //    }
-    //
-    //    func testUserDidTapPauseButtonWhenReadyToLoadURL() {
-    //        let failure = expectFailure(for: .playPauseButton(.userDidTapPauseButton), state: .readyToLoadURL(.arbitrary))
-    //        expect(failure, .readyToLoadURL)
-    //    }
-    //
-    //    func testUserDidTapPauseButtonWhenReadyToPlayAndNotPlaying() {
-    //        let failure = expectFailure(for: .playPauseButton(.userDidTapPauseButton), state: .readyToPlay(.init(isPlaying: false)))
-    //        expect(failure, .notPlaying)
-    //    }
 
 }
-
-//extension AudioBar.Event {
-//    public static func playerDidBecomeReady(withDuration duration: TimeInterval) -> AudioBar.Event {
-//        return .playerDidBecomeReady(withDuration: duration, and: AudioTags())
-//    }
-//}
 
 extension AudioBar.State.ReadyToPlay {
     init(
