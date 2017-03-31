@@ -15,7 +15,9 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(AudioBar.initialState, equals: .waitingForURL)
     }
 
-    func test_WaitingForURL_DidMutate() {
+    // MARK: - Waiting for URL
+
+    func test_WaitingForURL_1() {
         let view = expectView(for: .didMutate, state: .waitingForURL)
         expect(view?.playPauseButtonEvent, equals: .userDidTapPlayButton)
         expect(view?.isPlayPauseButtonEnabled, equals: false)
@@ -34,21 +36,31 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(view?.albumName, equals: nil)
     }
 
-    func test_WaitingForURL_DidPresent() {
+    func test_WaitingForURL_2() {
         expectIdle(for: .didPresent, state: .waitingForURL)
     }
 
-    func test_WaitingForURL_DidReceivePrepareToLoad_URL() {
+    // MARK: + Prepare to load URL
+
+    func test_WaitingForURL_PrepareToLoadURL_1() {
         let state = expectState(for: .didReceive(.prepareToLoad(.foo)), state: .waitingForURL)
         expect(state, equals: .readyToLoadURL(URL.foo))
     }
 
-    func test_WaitingForURL_DidReceivePrepareToLoad_NoURL() {
+    func test_WaitingForURL_PrepareToLoadURL_2() {
         let state = expectState(for: .didReceive(.prepareToLoad(nil)), state: .waitingForURL)
         expect(state, equals: .waitingForURL)
     }
 
-    func test_ReadyToLoadURL_DidMutate() {
+    // MARK: + Reset
+
+    func test_WaitingForURL_Reset() {
+        expectIdle(for: .didReceive(.reset), state: .waitingForURL)
+    }
+
+    // MARK: - Ready to load URL
+
+    func test_ReadyToLoadURL_1() {
         let view = expectView(for: .didMutate, state: .readyToLoadURL(.foo))
         expect(view?.playPauseButtonEvent, equals: .userDidTapPlayButton)
         expect(view?.isPlayPauseButtonEnabled, equals: true)
@@ -67,26 +79,30 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(view?.albumName, equals: nil)
     }
 
-    func test_ReadyToLoadURL_DidPresent() {
+    func test_ReadyToLoadURL_2() {
         expectIdle(for: .didPresent, state: .readyToLoadURL(.foo))
     }
 
-    func test_ReadyToLoadURL_DidReceiveUserDidTapPlayButton() {
+    // MARK: + User did tap play button
+
+    func test_ReadyToLoadURL_UserDidTapPlayButton_1() {
         let action = expectAction(for: .didReceive(.playPauseButton(.userDidTapPlayButton)), state: .readyToLoadURL(.foo))
         expect(action, equals: .player(.load(URL.foo)))
-
-        //                let update = expectUpdate(for: .playPauseButton(.userDidTapPlayButton), state: .readyToLoadURL(.arbitrary))
-        //                expect(update?.state, .waitingForPlayerToBecomeReadyToPlayURL(.arbitrary))
-        //                expect(update?.action, .player(.loadURL(.arbitrary)))
-
     }
 
-    func test_ReadyToLoadURL_DidPerformMakePlayerLoad() {
+    func test_ReadyToLoadURL_UserDidTapPlayButton_2() {
         let state = expectState(for: .didPerform(.player(.load(URL.foo)), result: Void()), state: .readyToLoadURL(.foo))
         expect(state, equals: .waitingForPlayerToLoad(.foo))
     }
 
-    // MARK: Waiting for player
+    // MARK: + Reset
+
+    func test_ReadyToLoadURL_Reset() {
+        let state = expectState(for: .didReceive(.reset), state: .readyToLoadURL(.foo))
+        expect(state, equals: .waitingForURL)
+    }
+
+    // MARK: - Waiting for player
 
     func testWaitingForPlayerView() {
         let view = expectView(for: .didMutate, state: .waitingForPlayerToLoad(.foo))
@@ -146,14 +162,6 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(state, equals: .readyToPlay(.init(isPlaying: true, currentTime: nil, info: .init())))
     }
 
-    func testWaitingForPlayerStop() {
-        let action = expectAction(
-            for: .didReceive(.prepareToLoad(nil)),
-            state: .waitingForPlayerToLoad(.foo)
-        )
-        expect(action, equals: .player(.load(nil)))
-    }
-
     func testWaitingForPlayerReturn() {
         let state = expectState(
             for: .didPerform(.player(.load(nil)), result: Void()),
@@ -162,18 +170,19 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(state, equals: .waitingForURL)
     }
 
-    func testWaitingForPlayerReload1() {
-        let action = expectAction(
-            for: .didReceive(.prepareToLoad(.foo)),
-            state: .waitingForPlayerToLoad(.bar)
-        )
+    // MARK: + Reset
+
+    func test_WaitingForPlayerToLoad_Reset1() {
+        let action = expectAction(for: .didReceive(.reset), state: .waitingForPlayerToLoad(.foo))
         expect(action, equals: .player(.load(nil)))
     }
 
-    // TODO: How to handle testWaitingForPlayerReload2 (?)
+    func test_WaitingForPlayerToLoad_Reset2() {
+        let state = expectState(for: .didPerform(.player(.load(nil)), result: Void()), state: .waitingForPlayerToLoad(.foo))
+        expect(state, equals: .waitingForURL)
+    }
 
-
-    // MARK: Ready to play
+    // MARK: - Ready to play
 
     func testPlaybackTime1() {
         let view = expectView(for: .didMutate, state: .readyToPlay(.init(currentTime: nil)))
@@ -479,57 +488,18 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(action, equals: .player(.setCurrentTime(60)))
     }
 
+    // MARK: + Reset
 
+    func test_ReadyToPlay_Reset_1() {
+        let action = expectAction(for: .didReceive(.reset), state: .readyToPlay(.init()))
+        expect(action, equals: .player(.load(nil)))
+    }
 
+    func test_ReadyToPlay_Reset_2() {
+        let state = expectState(for: .didPerform(.player(.load(nil)), result: Void()), state: .readyToPlay(.init()))
+        expect(state, equals: .waitingForURL)
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //
-    //    // MARK: Update
-    //
-    //    func testPrepareToLoad2() {
-    //        let update = expectUpdate(for: .prepareToLoad(.foo), state: .readyToLoadURL(.bar))
-    //        expect(update?.state, .readyToLoadURL(.foo))
-    //    }
-    //
-    //    func testPrepareToLoad3() {
-    //        let update = expectUpdate(for: .prepareToLoad(.foo), state: .waitingForPlayerToBecomeReadyToPlayURL(.bar))
-    //        expect(update?.state, .readyToLoadURL(.foo))
-    //        expect(update?.action, .player(.loadURL(nil)))
-    //    }
-    //
-    //    func testPrepareToLoad4() {
-    //        let update = expectUpdate(for: .prepareToLoad(.foo), state: .readyToPlay(.init()))
-    //        expect(update?.state, .readyToLoadURL(URL.foo))
-    //        expect(update?.action, .player(.loadURL(nil)))
-    //    }
-    //
-    //    func testPrepareToLoadNil2() {
-    //        let update = expectUpdate(for: .prepareToLoad(nil), state: .readyToLoadURL(.foo))
-    //        expect(update?.state, .waitingForURL)
-    //    }
-    //
-    //
-    //    func testPrepareToLoadNil4() {
-    //        let update = expectUpdate(for: .prepareToLoad(nil), state: .readyToPlay(.init()))
-    //        expect(update?.state, .waitingForURL)
-    //        expect(update?.action, .player(.loadURL(nil)))
-    //    }
-    //
 
     //
     //    func testUserDidTapPlayButtonWhenWaitingForURL() {

@@ -8,7 +8,10 @@ public struct AudioBar: StateMachine {
             case userDidTapPlayButton
             case userDidTapPauseButton
         }
+
         case prepareToLoad(URL?)
+        case reset
+
         case playPauseButton(PlayPauseButton)
         case userDidTapSeekBackButton
         case userDidTapSeekForwardButton
@@ -72,6 +75,7 @@ public struct AudioBar: StateMachine {
     }
 
     public enum Error {
+
         case noURL
         case readyToLoadURL
         case notReadyToPlay
@@ -79,6 +83,7 @@ public struct AudioBar: StateMachine {
         case notPlaying
         case waitingToBecomeReadyToPlay
         case notWaitingToBecomeReadyToPlay
+        case invalidStateTransition // Not tested
     }
 
     public static var initialState: State {
@@ -141,6 +146,18 @@ public struct AudioBar: StateMachine {
 
             }
 
+            // MARK: + Reset
+
+            switch trigger {
+
+            case .didReceive(.reset):
+                return .idle
+
+            default:
+                break
+
+            }
+
         default:
             break
 
@@ -194,7 +211,16 @@ public struct AudioBar: StateMachine {
             case .didPerform(.player(.load(.some(url))), result: _ as Void):
                 return .mutate(.waitingForPlayerToLoad(url))
 
-            case .didPerform(.player(.load(nil)), result: _ as Void):
+            default:
+                break
+
+            }
+
+            // MARK: + Reset
+
+            switch trigger {
+
+            case .didReceive(.reset):
                 return .mutate(.waitingForURL)
 
             default:
@@ -264,21 +290,6 @@ public struct AudioBar: StateMachine {
 
             }
 
-            // MARK: + Prepare to load
-
-            switch trigger {
-
-            case .didReceive(.prepareToLoad): // Ignoring URL
-                return .perform(.player(.load(nil)))
-
-            case .didPerform(.player(.load(nil)), result: _ as Void):
-                return .mutate(.waitingForURL)
-
-            default:
-                break
-
-            }
-
             // MARK: + Player did fail to become ready
 
             switch trigger {
@@ -288,6 +299,21 @@ public struct AudioBar: StateMachine {
 
             case .didPerform(.showAlert(text: "Unable to load media", button: "OK"), result: _ as Void):
                 return .mutate(.readyToLoadURL(url))
+
+            default:
+                break
+
+            }
+
+            // MARK: + Reset
+
+            switch trigger {
+
+            case .didReceive(.reset):
+                return .perform(.player(.load(nil)))
+
+            case .didPerform(.player(.load(nil)), result: _ as Void):
+                return .mutate(.waitingForURL)
 
             default:
                 break
@@ -413,12 +439,27 @@ public struct AudioBar: StateMachine {
 
             }
 
+            // MARK: + Reset
+
+            switch trigger {
+
+            case .didReceive(.reset):
+                return .perform(.player(.load(nil)))
+
+            case .didPerform(.player(.load(nil)), result: _ as Void):
+                return .mutate(.waitingForURL)
+
+            default:
+                break
+
+            }
+
         default:
             break
 
         }
 
-        fatalError()
+        return .raise(.invalidStateTransition)
 
     }
 
