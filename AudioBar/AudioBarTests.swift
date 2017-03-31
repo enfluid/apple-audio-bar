@@ -48,7 +48,7 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     // MARK: + Reset
 
-    func test_WaitingForURL_Reset() {
+    func test_WaitingForURL_Reset_Event() {
         expectIdle(for: .didReceive(.reset), state: .waitingForURL)
     }
 
@@ -518,12 +518,12 @@ class AudioBarTests: XCTestCase, StateMachineTests {
 
     // MARK: + Reset
 
-    func test_ReadyToPlay_Reset_1() {
+    func test_ReadyToPlay_Reset_Event() {
         let action = expectAction(for: .didReceive(.reset), state: .readyToPlay(.init()))
         expect(action, equals: .player(.load(nil)))
     }
 
-    func test_ReadyToPlay_Reset_2() {
+    func test_ReadyToPlay_Reset_Action() {
         let state = expectState(for: .didPerform(.player(.load(nil)), result: Void()), state: .readyToPlay(.init()))
         expect(state, equals: .waitingForURL)
     }
