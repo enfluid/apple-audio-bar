@@ -443,6 +443,28 @@ public struct AudioBar: StateMachine {
 
             switch trigger {
 
+            case .didReceive(.userDidTapPlayPauseButton):
+                let action: Action = readyToPlay.isPlaying
+                    ? .player(.pause)
+                    : .player(.play)
+                return .perform(action)
+
+            case .didReceive(.userDidTapPlayButton):
+                return .perform(.player(.play))
+
+            case .didReceive(.userDidTapPauseButton):
+                return .perform(.player(.pause))
+
+            case .didPerform(.player(.play), result: _ as Void):
+                var readyToPlay = readyToPlay
+                readyToPlay.isPlaying = true
+                return .mutate(.readyToPlay(readyToPlay))
+
+            case .didPerform(.player(.pause), result: _ as Void):
+                var readyToPlay = readyToPlay
+                readyToPlay.isPlaying = false
+                return .mutate(.readyToPlay(readyToPlay))
+
             default:
                 break
                 

@@ -489,11 +489,37 @@ class AudioBarTests: XCTestCase, StateMachineTests {
         expect(action, equals: .player(.setCurrentTime(60)))
     }
 
-    // MARK: + User did tap play pause button
+    // MARK: + User did tap play/pause button
 
-//    func test_ReadyToPlay_UserDidTapPlayPauseButton_1() {
-//        let action = expectAction(for: .didReceive(.userDidTapPlay
-//    }
+    func test_ReadyToPlay_UserDidTapPlayPauseButton_Event1() {
+        let action = expectAction(for: .didReceive(.userDidTapPlayPauseButton), state: .readyToPlay(.init(isPlaying: true)))
+        expect(action, equals: .player(.pause))
+    }
+
+    func test_ReadyToPlay_UserDidTapPlayPauseButton_Event2() {
+        let action = expectAction(for: .didReceive(.userDidTapPlayPauseButton), state: .readyToPlay(.init(isPlaying: false)))
+        expect(action, equals: .player(.play))
+    }
+
+    func test_ReadyToPlay_UserDidTapPlayPauseButton_Event3() {
+        let action = expectAction(for: .didReceive(.userDidTapPlayButton), state: .readyToPlay(.init(isPlaying: false)))
+        expect(action, equals: .player(.play))
+    }
+
+    func test_ReadyToPlay_UserDidTapPlayPauseButton_Event4() {
+        let action = expectAction(for: .didReceive(.userDidTapPauseButton), state: .readyToPlay(.init(isPlaying: true)))
+        expect(action, equals: .player(.pause))
+    }
+
+    func test_ReadyToPlay_UserDidTapPlayPauseButton_Action1() {
+        let state = expectState(for: .didPerform(.player(.play), result: Void()), state: .readyToPlay(.init(isPlaying: false)))
+        expect(state, equals: .readyToPlay(.init(isPlaying: true)))
+    }
+
+    func test_ReadyToPlay_UserDidTapPlayPauseButton_Action2() {
+        let state = expectState(for: .didPerform(.player(.pause), result: Void()), state: .readyToPlay(.init(isPlaying: true)))
+        expect(state, equals: .readyToPlay(.init(isPlaying: false)))
+    }
 
     // MARK: + Reset
 
