@@ -28,7 +28,7 @@ struct ReadyToPlayState: State, Effectful {
     var currentTime: TimeInterval? // This should not be optional
     var info: Player.Info
 
-    var nextState: State?
+    var nextState: State? = nil
     let world = World.shared
 
     static let seekInterval: TimeInterval = 15

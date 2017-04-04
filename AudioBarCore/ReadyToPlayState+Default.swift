@@ -24,28 +24,21 @@ import Stateful
 
 @testable import AudioBarCore
 
-extension Player.Info {
+extension ReadyToPlayState {
 
     init(
-        title: String? = Player.Info.arbitrary.title,
-        artist: String? = Player.Info.arbitrary.artist,
-        album: String? = Player.Info.arbitrary.album,
-        artwork: Data? = Player.Info.arbitrary.artwork,
-        duration: TimeInterval = Player.Info.arbitrary.duration
+        isPlaying: Bool = false,
+        currentTime: TimeInterval? = nil,
+        info: Player.Info = .arbitrary
         ) {
-        self.title = title
-        self.artist = artist
-        self.album = album
-        self.artwork = artwork
-        self.duration = duration
-    }
+        self.isPlaying = isPlaying
+        self.currentTime = currentTime
+        self.info = info
 
-    static let arbitrary = Player.Info(
-        title: "foo",
-        artist: "bar",
-        album: "baz",
-        artwork: Data(),
-        duration: 60
-    )
+        // Why do we need these?
+        self.nextState = nil
+        self.world = World.shared
+
+    }
     
 }
