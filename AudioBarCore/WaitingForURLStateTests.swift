@@ -21,7 +21,6 @@
 // SOFTWARE.
 
 import XCTest
-import Stateful
 
 @testable import AudioBarCore
 
