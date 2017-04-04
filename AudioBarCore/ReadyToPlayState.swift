@@ -24,18 +24,16 @@ import Stateful
 
 struct ReadyToPlayState: State, Effectful {
 
-    typealias Info = Player.GetInfoAction.Output
-
     var isPlaying: Bool
     var currentTime: TimeInterval? // This should not be optional
-    var info: Info
+    var info: Player.Info
 
     var nextState: State?
     let world = World.shared
 
     static let seekInterval: TimeInterval = 15
 
-    init(isPlaying: Bool, currentTime: TimeInterval?, info: Info) {
+    init(isPlaying: Bool, currentTime: TimeInterval?, info: Player.Info) {
         self.isPlaying = isPlaying
         self.currentTime = currentTime
         self.info = info

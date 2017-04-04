@@ -22,46 +22,16 @@
 
 import Stateful
 
-struct Player {
+@testable import AudioBarCore
 
-    private init() {}
-}
+extension Player.Info {
 
-extension Player {
-
-    struct PlayAction: Action {}
-    struct PauseAction: Action {}
-
-}
-
-extension Player {
-
-    struct Info {
-        var title: String?
-        var artist: String?
-        var album: String?
-        var artwork: Data?
-        let duration: TimeInterval
-    }
-
-    struct GetInfoAction: Action {
-        typealias Output = Info
-    }
-
-}
-
-extension Player {
-
-    struct LoadAction: Action {
-        let url: URL?
-    }
-
-}
-
-extension Player {
-
-    struct SeekAction: Action {
-        let currentTime: TimeInterval
-    }
+    static let arbitrary = Player.Info(
+        title: "foo",
+        artist: "bar",
+        album: "baz",
+        artwork: Data(),
+        duration: 60
+    )
     
 }

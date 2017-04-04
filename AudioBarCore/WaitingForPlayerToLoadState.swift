@@ -50,8 +50,12 @@ extension WaitingForPlayerToLoadState {
 
     public mutating func onUserDidTapPauseButton() throws {
         try world.perform(Player.LoadAction(url: nil))
-        nextState = WaitingForURLState()
+        nextState = ReadyToLoadURLState(url: url)
     }
+
+}
+
+extension WaitingForPlayerToLoadState {
 
     public mutating func reset() throws {
         try world.perform(Player.LoadAction(url: nil))
