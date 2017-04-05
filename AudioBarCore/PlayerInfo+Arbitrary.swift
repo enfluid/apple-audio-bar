@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+import Foundation
 import Stateful
 
 @testable import AudioBarCore
@@ -47,5 +48,5 @@ extension Player.Info {
         artwork: Data(),
         duration: 60
     )
-    
+
 }
