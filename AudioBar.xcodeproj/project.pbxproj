@@ -18,6 +18,7 @@
 		91A85E0D1E94D4CE0049E5C6 /* TimeInterval+Arbitrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A85E0C1E94D4CE0049E5C6 /* TimeInterval+Arbitrary.swift */; };
 		91C1561D1E6F2C6800FA2740 /* CMTime+TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C1561C1E6F2C6800FA2740 /* CMTime+TimeInterval.swift */; };
 		91C186461E031A4D006ECAD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91C186451E031A4D006ECAD8 /* Assets.xcassets */; };
+		91D8A1E41E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91D8A1E31E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift */; };
 		91F077E21E8D3D62000B5A61 /* Stateful.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F077E11E8D3D62000B5A61 /* Stateful.framework */; };
 		91FC614B1E93C1B8006003E1 /* AudioBarCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91FC61421E93C1B8006003E1 /* AudioBarCore.framework */; };
 		91FC61521E93C1B8006003E1 /* AudioBarCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 91FC61441E93C1B8006003E1 /* AudioBarCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -60,6 +61,7 @@
 		91A85E0C1E94D4CE0049E5C6 /* TimeInterval+Arbitrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Arbitrary.swift"; sourceTree = "<group>"; };
 		91C1561C1E6F2C6800FA2740 /* CMTime+TimeInterval.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CMTime+TimeInterval.swift"; sourceTree = "<group>"; };
 		91C186451E031A4D006ECAD8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		91D8A1E31E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadyToPlayStateViewTests.swift; sourceTree = "<group>"; };
 		91F077E11E8D3D62000B5A61 /* Stateful.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Stateful.framework; path = Carthage/Build/iOS/Stateful.framework; sourceTree = "<group>"; };
 		91FC61421E93C1B8006003E1 /* AudioBarCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AudioBarCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		91FC61441E93C1B8006003E1 /* AudioBarCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioBarCore.h; sourceTree = "<group>"; };
@@ -188,6 +190,7 @@
 				91FC61681E93C2DD006003E1 /* WaitingForPlayerToLoadStateTests.swift */,
 				91FC615F1E93C22D006003E1 /* ReadyToPlayState.swift */,
 				91FC616A1E93C2E5006003E1 /* ReadyToPlayStateTests.swift */,
+				91D8A1E31E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift */,
 			);
 			name = States;
 			sourceTree = "<group>";
@@ -393,6 +396,7 @@
 				91FC61671E93C2D4006003E1 /* ReadyToLoadURLStateTests.swift in Sources */,
 				91FC61651E93C2CA006003E1 /* WaitingForURLStateTests.swift in Sources */,
 				910601261E93D480008CE92D /* URL+Arbitrary.swift in Sources */,
+				91D8A1E41E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift in Sources */,
 				91FC61691E93C2DD006003E1 /* WaitingForPlayerToLoadStateTests.swift in Sources */,
 				91A85E0D1E94D4CE0049E5C6 /* TimeInterval+Arbitrary.swift in Sources */,
 				910601281E93D510008CE92D /* XCTestCase+Tests.swift in Sources */,
