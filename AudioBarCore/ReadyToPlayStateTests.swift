@@ -198,11 +198,6 @@ extension ReadyToPlayStateTests {
     func testViewArtworkData2() {
         let state = ReadyToPlayState(info: .init(artwork: Data()))
         let view = state.present() as! AudioBarView
-
-        // TODO: Fix `expect`:
-        // 1. Improve error message (dump -> describing)
-        // 2. Improve handling Equatables, e.g. Data() equal to Data()
-
         expect(view.artworkData, equals: Data())
     }
 
