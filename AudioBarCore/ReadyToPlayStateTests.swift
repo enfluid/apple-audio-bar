@@ -50,19 +50,19 @@ extension ReadyToPlayStateTests {
 
 extension ReadyToPlayStateTests {
 
-    func testOnUserDidTapPlaybutton() throws {
+    func testOnUserDidTapPlaybutton() {
         state.isPlaying = false
         let mock = injectMock(into: state.world)
         mock.expect(Player.PlayAction())
-        try state.onUserDidTapPlayButton()
+        state.onUserDidTapPlayButton()
         expect(state.isPlaying, equals: true)
     }
 
-    func testOnUserDidTapPauseButton() throws {
+    func testOnUserDidTapPauseButton() {
         state.isPlaying = true
         let mock = injectMock(into: state.world)
         mock.expect(Player.PauseAction())
-        try state.onUserDidTapPauseButton()
+        state.onUserDidTapPauseButton()
         expect(state.isPlaying, equals: false)
     }
 
@@ -70,43 +70,43 @@ extension ReadyToPlayStateTests {
 
 extension ReadyToPlayStateTests {
 
-    func testOnUserDidTapSeekBackButton1() throws {
+    func testOnUserDidTapSeekBackButton1() {
         state.currentTime = ReadyToPlayState.seekInterval + 1
         let mock = injectMock(into: state.world)
         mock.expect(Player.SeekAction(currentTime: 1))
-        try state.onUserDidTapSeekBackButton()
+        state.onUserDidTapSeekBackButton()
         expect(state.currentTime, equals: 1)
     }
 
-    func testOnUserDidTapSeekBackButton2() throws {
+    func testOnUserDidTapSeekBackButton2() {
         state.currentTime = ReadyToPlayState.seekInterval + 2
         let mock = injectMock(into: state.world)
         mock.expect(Player.SeekAction(currentTime: 2))
-        try state.onUserDidTapSeekBackButton()
+        state.onUserDidTapSeekBackButton()
         expect(state.currentTime, equals: 2)
     }
 
-    func testOnUserDidTapSeekBackButton3() throws {
+    func testOnUserDidTapSeekBackButton3() {
         state.currentTime = ReadyToPlayState.seekInterval
         let mock = injectMock(into: state.world)
         mock.expect(Player.SeekAction(currentTime: 0))
-        try state.onUserDidTapSeekBackButton()
+        state.onUserDidTapSeekBackButton()
         expect(state.currentTime, equals: 0)
     }
 
-    func testOnUserDidTapSeekBackButton4() throws {
+    func testOnUserDidTapSeekBackButton4() {
         state.currentTime = ReadyToPlayState.seekInterval - 1
         let mock = injectMock(into: state.world)
         mock.expect(Player.SeekAction(currentTime: 0))
-        try state.onUserDidTapSeekBackButton()
+        state.onUserDidTapSeekBackButton()
         expect(state.currentTime, equals: 0)
     }
 
-    func testOnUserDidTapSeekBackButton5() throws {
+    func testOnUserDidTapSeekBackButton5() {
         state.currentTime = ReadyToPlayState.seekInterval - 2
         let mock = injectMock(into: state.world)
         mock.expect(Player.SeekAction(currentTime: 0))
-        try state.onUserDidTapSeekBackButton()
+        state.onUserDidTapSeekBackButton()
         expect(state.currentTime, equals: 0)
     }
 
@@ -114,41 +114,41 @@ extension ReadyToPlayStateTests {
 
 extension ReadyToPlayStateTests {
 
-    func testOnUserDidTapSeekForwardButton1() throws {
+    func testOnUserDidTapSeekForwardButton1() {
         state.currentTime = 0
         state.info = .init(duration: .infinity)
         let mock = injectMock(into: state.world)
         mock.expect(Player.SeekAction(currentTime: 0 + ReadyToPlayState.seekInterval))
-        try state.onUserDidTapSeekForwardButton()
+        state.onUserDidTapSeekForwardButton()
         expect(state.currentTime, equals: 0 + ReadyToPlayState.seekInterval)
     }
 
-    func testOnUserDidTapSeekForwardButton2() throws {
+    func testOnUserDidTapSeekForwardButton2() {
         state.currentTime = 1
         state.info = .init(duration: .infinity)
         let mock = injectMock(into: state.world)
         mock.expect(Player.SeekAction(currentTime: 1 + ReadyToPlayState.seekInterval))
-        try state.onUserDidTapSeekForwardButton()
+        state.onUserDidTapSeekForwardButton()
         expect(state.currentTime, equals: 1 + ReadyToPlayState.seekInterval)
     }
 
-    func testOnUserDidTapSeekForwardButton3() throws {
+    func testOnUserDidTapSeekForwardButton3() {
         precondition(ReadyToPlayState.seekInterval < 60)
         state.currentTime = 60 - 1
         state.info = .init(duration: 60)
         let mock = injectMock(into: state.world)
         mock.expect(Player.SeekAction(currentTime: 60))
-        try state.onUserDidTapSeekForwardButton()
+        state.onUserDidTapSeekForwardButton()
         expect(state.currentTime, equals: 60)
     }
 
-    func testOnUserDidTapSeekForwardButton4() throws {
+    func testOnUserDidTapSeekForwardButton4() {
         precondition(ReadyToPlayState.seekInterval < 60)
         state.currentTime = 60 - 2
         state.info = .init(duration: 60)
         let mock = injectMock(into: state.world)
         mock.expect(Player.SeekAction(currentTime: 60))
-        try state.onUserDidTapSeekForwardButton()
+        state.onUserDidTapSeekForwardButton()
         expect(state.currentTime, equals: 60)
     }
 
@@ -156,10 +156,10 @@ extension ReadyToPlayStateTests {
 
 extension ReadyToPlayStateTests {
 
-    func testReset() throws {
+    func testReset() {
         let mock = injectMock(into: state.world)
         mock.expect(Player.LoadAction(url: nil))
-        try state.reset()
+        state.reset()
         expect(state.nextState, equals: WaitingForURLState())
     }
 

@@ -37,12 +37,22 @@ extension Player {
 
 extension Player {
 
-    struct Info {
+    struct Info: Arbitrary {
+
         var title: String?
         var artist: String?
         var album: String?
         var artwork: Data?
         let duration: TimeInterval
+
+        static let arbitrary = Player.Info(
+            title: "foo",
+            artist: "bar",
+            album: "baz",
+            artwork: Data(),
+            duration: 60
+        )
+
     }
 
     struct GetInfoAction: Action {
@@ -65,4 +75,12 @@ extension Player {
         let currentTime: TimeInterval
     }
     
+}
+
+extension Player {
+
+    struct GetCurrentTime: Action {
+        typealias Output = TimeInterval
+    }
+
 }

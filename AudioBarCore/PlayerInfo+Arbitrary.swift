@@ -41,12 +41,4 @@ extension Player.Info {
         self.duration = duration
     }
 
-    static let arbitrary = Player.Info(
-        title: "foo",
-        artist: "bar",
-        album: "baz",
-        artwork: Data(),
-        duration: 60
-    )
-
 }

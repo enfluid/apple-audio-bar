@@ -27,28 +27,28 @@ final class WaitingForPlayerToLoadStateTests: XCTestCase {}
 
 extension WaitingForPlayerToLoadStateTests {
 
-    func testOnPlayerDidBecomeReady() throws {
+    func testOnPlayerDidBecomeReady() {
         var state = WaitingForPlayerToLoadState(url: .foo)
         let mock = injectMock(into: state.world)
         mock.expect(Player.PlayAction())
         mock.expect(Player.GetInfoAction(), result: .arbitrary)
-        try state.onPlayerDidBecomeReady()
+        state.onPlayerDidBecomeReady()
         expect(state.nextState, equals: ReadyToPlayState(isPlaying: true, currentTime: nil, info: .arbitrary))
     }
 
-    func testOnPlayerDidFailToBecomeReady() throws {
+    func testOnPlayerDidFailToBecomeReady() {
         var state = WaitingForPlayerToLoadState(url: .foo)
         let mock = injectMock(into: state.world)
         mock.expect(ShowAlertAction(text: "Unable to load media", button: "OK"))
-        try state.onPlayerDidFailToBecomeReady()
+        state.onPlayerDidFailToBecomeReady()
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
     }
 
-    func testOnUserDidTapPauseButton() throws {
+    func testOnUserDidTapPauseButton() {
         var state = WaitingForPlayerToLoadState(url: .foo)
         let mock = injectMock(into: state.world)
         mock.expect(Player.LoadAction(url: nil))
-        try state.onUserDidTapPauseButton()
+        state.onUserDidTapPauseButton()
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
     }
 
@@ -56,11 +56,11 @@ extension WaitingForPlayerToLoadStateTests {
 
 extension WaitingForPlayerToLoadStateTests {
 
-    func testReset() throws {
+    func testReset() {
         var state = WaitingForPlayerToLoadState(url: .foo)
         let mock = injectMock(into: state.world)
         mock.expect(Player.LoadAction(url: nil))
-        try state.reset()
+        state.reset()
         expect(state.nextState, equals: WaitingForURLState())
     }
 

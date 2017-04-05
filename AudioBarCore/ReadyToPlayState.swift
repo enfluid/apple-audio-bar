@@ -57,14 +57,14 @@ extension ReadyToPlayState {
 
 extension ReadyToPlayState {
 
-    public mutating func onUserDidTapPlayButton() throws {
-        try world.perform(Player.PlayAction())
+    public mutating func onUserDidTapPlayButton() {
+        world.perform(Player.PlayAction())
         isPlaying = true
 
     }
 
-    public mutating func onUserDidTapPauseButton() throws {
-        try world.perform(Player.PauseAction())
+    public mutating func onUserDidTapPauseButton() {
+        world.perform(Player.PauseAction())
         isPlaying = false
     }
 
@@ -72,22 +72,22 @@ extension ReadyToPlayState {
 
 extension ReadyToPlayState {
 
-    public mutating func onUserDidTapSeekBackButton() throws {
+    public mutating func onUserDidTapSeekBackButton() {
         currentTime = max(0, currentTime! - ReadyToPlayState.seekInterval)
-        try world.perform(Player.SeekAction(currentTime: currentTime!))
+        world.perform(Player.SeekAction(currentTime: currentTime!))
     }
 
-    public mutating func onUserDidTapSeekForwardButton() throws {
+    public mutating func onUserDidTapSeekForwardButton() {
         currentTime = min(info.duration, currentTime! + ReadyToPlayState.seekInterval)
-        try world.perform(Player.SeekAction(currentTime: currentTime!))
+        world.perform(Player.SeekAction(currentTime: currentTime!))
     }
 
 }
 
 extension ReadyToPlayState {
 
-    public mutating func reset() throws {
-        try world.perform(Player.LoadAction(url: nil))
+    public mutating func reset() {
+        world.perform(Player.LoadAction(url: nil))
         nextState = WaitingForURLState()
     }
     

@@ -27,11 +27,11 @@ final class ReadyToLoadURLStateTests: XCTestCase {}
 
 extension ReadyToLoadURLStateTests {
 
-    func testOnUserDidTapPlayButton() throws {
+    func testOnUserDidTapPlayButton() {
         var state = ReadyToLoadURLState(url: .foo)
         let mock = injectMock(into: state.world)
         mock.expect(Player.LoadAction(url: .foo))
-        try state.onUserDidTapPlayButton()
+        state.onUserDidTapPlayButton()
         expect(state.nextState, equals: WaitingForPlayerToLoadState(url: .foo))
     }
 
