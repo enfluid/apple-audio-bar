@@ -41,6 +41,57 @@ struct ReadyToPlayState: State, Effectful {
 
 }
 
+extension ReadyToPlayState {
+
+    public mutating func onPlayerDidUpdateCurrentTime(_ currentTime: TimeInterval) {
+        self.currentTime = currentTime
+    }
+
+    public mutating func onPlayerDidPlayToEnd() {
+        currentTime = info.duration
+        isPlaying = false
+    }
+
+}
+
+extension ReadyToPlayState {
+
+    public mutating func onUserDidTapPlayButton() throws {
+        try world.perform(Player.PlayAction())
+        isPlaying = true
+
+    }
+
+    public mutating func onUserDidTapPauseButton() throws {
+        try world.perform(Player.PauseAction())
+        isPlaying = false
+    }
+
+}
+
+extension ReadyToPlayState {
+
+    public mutating func onUserDidTapSeekBackButton() throws {
+        currentTime = max(0, currentTime! - ReadyToPlayState.seekInterval)
+        try world.perform(Player.SeekAction(currentTime: currentTime!))
+    }
+
+    public mutating func onUserDidTapSeekForwardButton() throws {
+        currentTime = min(info.duration, currentTime! + ReadyToPlayState.seekInterval)
+        try world.perform(Player.SeekAction(currentTime: currentTime!))
+    }
+
+}
+
+extension ReadyToPlayState {
+
+    public mutating func reset() throws {
+        try world.perform(Player.LoadAction(url: nil))
+        nextState = WaitingForURLState()
+    }
+    
+}
+
 extension ReadyToPlayState: Presentable {
 
     func present() -> View {
@@ -104,57 +155,6 @@ extension ReadyToPlayState: Presentable {
             return false
         }
         return remainingTime > 0
-    }
-
-}
-
-extension ReadyToPlayState {
-
-    public mutating func onPlayerDidUpdateCurrentTime(_ currentTime: TimeInterval) {
-        self.currentTime = currentTime
-    }
-
-    public mutating func onPlayerDidPlayToEnd() {
-        currentTime = info.duration
-        isPlaying = false
-    }
-
-}
-
-extension ReadyToPlayState {
-
-    public mutating func onUserDidTapPlayButton() throws {
-        try world.perform(Player.PlayAction())
-        isPlaying = true
-
-    }
-
-    public mutating func onUserDidTapPauseButton() throws {
-        try world.perform(Player.PauseAction())
-        isPlaying = false
-    }
-
-}
-
-extension ReadyToPlayState {
-
-    public mutating func onUserDidTapSeekBackButton() throws {
-        currentTime = max(0, currentTime! - ReadyToPlayState.seekInterval)
-        try world.perform(Player.SeekAction(currentTime: currentTime!))
-    }
-
-    public mutating func onUserDidTapSeekForwardButton() throws {
-        currentTime = min(info.duration, currentTime! + ReadyToPlayState.seekInterval)
-        try world.perform(Player.SeekAction(currentTime: currentTime!))
-    }
-
-}
-
-extension ReadyToPlayState {
-
-    public mutating func reset() throws {
-        try world.perform(Player.LoadAction(url: nil))
-        nextState = WaitingForURLState()
     }
     
 }
