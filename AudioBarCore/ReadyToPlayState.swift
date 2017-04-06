@@ -23,10 +23,10 @@
 import Foundation
 import Stateful
 
-struct ReadyToPlayState: State, Effectful {
+public struct ReadyToPlayState: State, Effectful {
 
-    var nextState: State?
-    let world = World.shared
+    public var nextState: State?
+    public let world = World.shared
 
     static let seekInterval: TimeInterval = 15
 
@@ -88,7 +88,7 @@ extension ReadyToPlayState {
 
 extension ReadyToPlayState: Presentable {
 
-    func present() -> View {
+    public func present() -> View {
 
         let isPlaying = world.receive(Player.Playing())
         let elapsedPlaybackTime = world.receive(Player.ElapsedPlaybackTime())

@@ -23,11 +23,11 @@
 import Foundation
 import Stateful
 
-struct WaitingForURLState: State {
+public struct WaitingForURLState: State {
 
-    var nextState: State?
+    public var nextState: State?
 
-    init() {}
+    public init() {}
 
 }
 
@@ -41,7 +41,7 @@ extension WaitingForURLState {
 
 extension WaitingForURLState: Presentable {
 
-    func present() -> View {
+    public func present() -> View {
         return AudioBarView(
             playPauseButtonImage: .play,
             isPlayPauseButtonEnabled: false,

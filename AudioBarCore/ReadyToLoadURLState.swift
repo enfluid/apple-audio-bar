@@ -23,13 +23,14 @@
 import Foundation
 import Stateful
 
-struct ReadyToLoadURLState: State, Effectful {
+public struct ReadyToLoadURLState: State, Effectful {
 
-    var url: URL
-    let world = World.shared
-    var nextState: State?
+    fileprivate var url: URL
 
-    init(url: URL) {
+    public let world = World.shared
+    public var nextState: State?
+
+    public init(url: URL) {
         self.url = url
     }
 
@@ -66,7 +67,7 @@ extension ReadyToLoadURLState {
 
 extension ReadyToLoadURLState: Presentable {
 
-    func present() -> View {
+    public func present() -> View {
         return AudioBarView(
             playPauseButtonImage: .play,
             isPlayPauseButtonEnabled: true,
