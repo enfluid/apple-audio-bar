@@ -35,6 +35,18 @@ extension ReadyToLoadURLStateTests {
         expect(state.nextState, equals: WaitingForPlayerToLoadState(url: .foo))
     }
 
+    func testOnUserDidTapPlayPauseButton() {
+        var state = ReadyToLoadURLState(url: .foo)
+        let mock = injectMock(into: state.world)
+        mock.expect(Player.Load(url: .foo))
+        state.onUserDidTapPlayPauseButton()
+        expect(state.nextState, equals: WaitingForPlayerToLoadState(url: .foo))
+    }
+
+}
+
+extension ReadyToLoadURLStateTests {
+
     func testReset() {
         var state = ReadyToLoadURLState(url: .foo)
         state.reset()

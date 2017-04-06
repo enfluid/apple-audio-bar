@@ -47,7 +47,19 @@ extension WaitingForPlayerToLoadState {
         nextState = ReadyToLoadURLState(url: url)
     }
 
+}
+
+extension WaitingForPlayerToLoadState {
+
     public mutating func onUserDidTapPauseButton() {
+        stop()
+    }
+
+    public mutating func onUserDidTapPlayPauseButton() {
+        stop()
+    }
+
+    private mutating func stop() {
         world.send(Player.Load(url: nil))
         nextState = ReadyToLoadURLState(url: url)
     }

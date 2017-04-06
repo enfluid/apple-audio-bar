@@ -49,6 +49,11 @@ extension ReadyToPlayState {
         world.send(Player.PlayingUpdate(isPlaying: false))
     }
 
+    public func onUserDidTapPlayPauseButton() {
+        let isPlaying = world.receive(Player.Playing())
+        world.send(Player.PlayingUpdate(isPlaying: !isPlaying))
+    }
+
 }
 
 extension ReadyToPlayState {

@@ -43,11 +43,23 @@ extension WaitingForPlayerToLoadStateTests {
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
     }
 
+}
+
+extension WaitingForPlayerToLoadStateTests {
+
     func testOnUserDidTapPauseButton() {
         var state = WaitingForPlayerToLoadState(url: .foo)
         let mock = injectMock(into: state.world)
         mock.expect(Player.Load(url: nil))
         state.onUserDidTapPauseButton()
+        expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
+    }
+
+    func testOnUserDidTapPlayPauseButton() {
+        var state = WaitingForPlayerToLoadState(url: .foo)
+        let mock = injectMock(into: state.world)
+        mock.expect(Player.Load(url: nil))
+        state.onUserDidTapPlayPauseButton()
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
     }
 

@@ -56,6 +56,20 @@ extension ReadyToPlayStateTests {
         state.onUserDidTapPauseButton()
     }
 
+    func testOnUserDidTapPlayPauseButton1() {
+        let mock = injectMock(into: state.world)
+        mock.stub(Player.Playing(), result: true)
+        mock.expect(Player.PlayingUpdate(isPlaying: false))
+        state.onUserDidTapPlayPauseButton()
+    }
+
+    func testOnUserDidTapPlayPauseButton2() {
+        let mock = injectMock(into: state.world)
+        mock.stub(Player.Playing(), result: false)
+        mock.expect(Player.PlayingUpdate(isPlaying: true))
+        state.onUserDidTapPlayPauseButton()
+    }
+
 }
 
 extension ReadyToPlayStateTests {
