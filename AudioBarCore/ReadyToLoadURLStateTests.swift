@@ -21,23 +21,31 @@
 // SOFTWARE.
 
 import XCTest
+import Stateful
+
 @testable import AudioBarCore
 
-final class ReadyToLoadURLStateTests: XCTestCase {}
+final class ReadyToLoadURLStateTests: XCTestCase {
+
+    fileprivate var state = ReadyToLoadURLState(url: .foo)
+    fileprivate var mock: Mock!
+
+    override func setUp() {
+        super.setUp()
+        mock = injectMock(into: state.world)
+    }
+
+}
 
 extension ReadyToLoadURLStateTests {
 
     func testOnUserDidTapPlayButton() {
-        var state = ReadyToLoadURLState(url: .foo)
-        let mock = injectMock(into: state.world)
         mock.expect(Player.Load(url: .foo))
         state.onUserDidTapPlayButton()
         expect(state.nextState, equals: WaitingForPlayerToLoadState(url: .foo))
     }
 
     func testOnUserDidTapPlayPauseButton() {
-        var state = ReadyToLoadURLState(url: .foo)
-        let mock = injectMock(into: state.world)
         mock.expect(Player.Load(url: .foo))
         state.onUserDidTapPlayPauseButton()
         expect(state.nextState, equals: WaitingForPlayerToLoadState(url: .foo))
@@ -48,13 +56,11 @@ extension ReadyToLoadURLStateTests {
 extension ReadyToLoadURLStateTests {
 
     func testPrepareToLoad1() {
-        var state = ReadyToLoadURLState(url: .foo)
         state.prepareToLoad(.bar)
         expect(state.url, equals: .bar)
     }
 
     func testPrepareToLoad2() {
-        var state = ReadyToLoadURLState(url: .foo)
         state.prepareToLoad(nil)
         expect(state.nextState, equals: WaitingForURLState())
     }
@@ -64,7 +70,6 @@ extension ReadyToLoadURLStateTests {
 extension ReadyToLoadURLStateTests {
 
     func testView() {
-        let state = ReadyToLoadURLState(url: .foo)
         let view = state.present() as! AudioBarView
         expect(view.playPauseButtonImage, equals: .play)
         expect(view.isPlayPauseButtonEnabled, equals: true)

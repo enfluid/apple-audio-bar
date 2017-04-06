@@ -21,15 +21,19 @@
 // SOFTWARE.
 
 import XCTest
+import Stateful
 
 @testable import AudioBarCore
 
-final class WaitingForURLStateTests: XCTestCase {}
+final class WaitingForURLStateTests: XCTestCase {
+
+    fileprivate var state = WaitingForURLState()
+
+}
 
 extension WaitingForURLStateTests {
 
     func testPrepareToLoad() {
-        var state = WaitingForURLState()
         state.prepareToLoad(url: .foo)
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
     }
@@ -39,7 +43,6 @@ extension WaitingForURLStateTests {
 extension WaitingForURLStateTests {
 
     func testView() {
-        let state = WaitingForURLState()
         let view = state.present() as! AudioBarView
         expect(view.playPauseButtonImage, equals: .play)
         expect(view.isPlayPauseButtonEnabled, equals: false)

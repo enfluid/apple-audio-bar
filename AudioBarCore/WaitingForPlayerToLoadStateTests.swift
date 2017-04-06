@@ -21,23 +21,31 @@
 // SOFTWARE.
 
 import XCTest
+import Stateful
+
 @testable import AudioBarCore
 
-final class WaitingForPlayerToLoadStateTests: XCTestCase {}
+final class WaitingForPlayerToLoadStateTests: XCTestCase {
+
+    fileprivate var state = WaitingForPlayerToLoadState(url: .foo)
+    fileprivate var mock: Mock!
+
+    override func setUp() {
+        super.setUp()
+        mock = injectMock(into: state.world)
+    }
+
+}
 
 extension WaitingForPlayerToLoadStateTests {
 
     func testPrepareToLoad1() {
-        var state = WaitingForPlayerToLoadState(url: .foo)
-        let mock = injectMock(into: state.world)
         mock.expect(Player.Load(url: nil))
         state.prepareToLoad(.bar)
         expect(state.nextState, equals: ReadyToLoadURLState(url: .bar))
     }
 
     func testPrepareToLoad2() {
-        var state = WaitingForPlayerToLoadState(url: .foo)
-        let mock = injectMock(into: state.world)
         mock.expect(Player.Load(url: nil))
         state.prepareToLoad(nil)
         expect(state.nextState, equals: WaitingForURLState())
@@ -48,16 +56,12 @@ extension WaitingForPlayerToLoadStateTests {
 extension WaitingForPlayerToLoadStateTests {
 
     func testOnPlayerDidBecomeReady() {
-        var state = WaitingForPlayerToLoadState(url: .foo)
-        let mock = injectMock(into: state.world)
         mock.expect(Player.PlayingUpdate(isPlaying: true))
         state.onPlayerDidBecomeReady()
         expect(state.nextState, equals: ReadyToPlayState())
     }
 
     func testOnPlayerDidFailToBecomeReady() {
-        var state = WaitingForPlayerToLoadState(url: .foo)
-        let mock = injectMock(into: state.world)
         mock.expect(ShowAlertAction(text: "Unable to load media", button: "OK"))
         state.onPlayerDidFailToBecomeReady()
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
@@ -68,16 +72,12 @@ extension WaitingForPlayerToLoadStateTests {
 extension WaitingForPlayerToLoadStateTests {
 
     func testOnUserDidTapPauseButton() {
-        var state = WaitingForPlayerToLoadState(url: .foo)
-        let mock = injectMock(into: state.world)
         mock.expect(Player.Load(url: nil))
         state.onUserDidTapPauseButton()
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
     }
 
     func testOnUserDidTapPlayPauseButton() {
-        var state = WaitingForPlayerToLoadState(url: .foo)
-        let mock = injectMock(into: state.world)
         mock.expect(Player.Load(url: nil))
         state.onUserDidTapPlayPauseButton()
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
@@ -88,7 +88,6 @@ extension WaitingForPlayerToLoadStateTests {
 extension WaitingForPlayerToLoadStateTests {
 
     func testView() {
-        let state = WaitingForPlayerToLoadState(url: .foo)
         let view = state.present() as! AudioBarView
         expect(view.playPauseButtonImage, equals: .pause)
         expect(view.isPlayPauseButtonEnabled, equals: true)
