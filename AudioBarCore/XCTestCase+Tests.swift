@@ -28,5 +28,5 @@ extension XCTestCase: Tests {
     public func fail(_ message: String, file: StaticString, line: Int) {
         XCTFail(message, file: file, line: UInt(line))
     }
-    
+
 }

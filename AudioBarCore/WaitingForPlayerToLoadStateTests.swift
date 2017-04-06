@@ -50,7 +50,7 @@ extension WaitingForPlayerToLoadStateTests {
         state.prepareToLoad(nil)
         expect(state.nextState, equals: WaitingForURLState())
     }
-    
+
 }
 
 extension WaitingForPlayerToLoadStateTests {

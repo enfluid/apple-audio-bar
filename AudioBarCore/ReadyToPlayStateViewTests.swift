@@ -34,7 +34,7 @@ final class ReadyToPlayStateViewTests: XCTestCase {
         super.setUp()
         mock = injectMock(into: state.world)
     }
-    
+
 }
 
 extension ReadyToPlayStateViewTests {
@@ -50,7 +50,7 @@ extension ReadyToPlayStateViewTests {
         state.prepareToLoad(nil)
         expect(state.nextState, equals: WaitingForURLState())
     }
-    
+
 }
 
 extension ReadyToPlayStateViewTests {
@@ -353,7 +353,7 @@ extension ReadyToPlayStateViewTests {
         mock.stub(Player.PlaybackDuration(), result: 120)
         expect(audioBarView.isPlayPauseButtonEnabled, equals: true)
     }
-    
+
 }
 
 extension ReadyToPlayStateViewTests {

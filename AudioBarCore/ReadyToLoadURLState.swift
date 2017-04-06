@@ -27,7 +27,7 @@ struct ReadyToLoadURLState: State, Effectful {
 
     var url: URL
     let world = World.shared
-    var nextState: State? = nil
+    var nextState: State?
 
     init(url: URL) {
         self.url = url
@@ -86,5 +86,5 @@ extension ReadyToLoadURLState: Presentable {
             artworkData: nil
         )
     }
-    
+
 }

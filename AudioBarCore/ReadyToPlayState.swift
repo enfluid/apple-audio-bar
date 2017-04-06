@@ -25,7 +25,7 @@ import Stateful
 
 struct ReadyToPlayState: State, Effectful {
 
-    var nextState: State? = nil
+    var nextState: State?
     let world = World.shared
 
     static let seekInterval: TimeInterval = 15

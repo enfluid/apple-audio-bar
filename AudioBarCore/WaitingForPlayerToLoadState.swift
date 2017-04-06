@@ -45,7 +45,7 @@ extension WaitingForPlayerToLoadState {
             nextState = WaitingForURLState()
         }
     }
-    
+
 }
 
 extension WaitingForPlayerToLoadState {
@@ -103,4 +103,3 @@ extension WaitingForPlayerToLoadState: Presentable {
     }
 
 }
-
