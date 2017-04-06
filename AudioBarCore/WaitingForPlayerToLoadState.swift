@@ -38,19 +38,17 @@ struct WaitingForPlayerToLoadState: State, Effectful {
 extension WaitingForPlayerToLoadState {
 
     public mutating func onPlayerDidBecomeReady() {
-        world.perform(Player.PlayAction())
-        let info = world.perform(Player.GetInfoAction())
-        nextState = ReadyToPlayState(isPlaying: true, currentTime: nil, info: info)
+        world.send(Player.PlayingUpdate(isPlaying: true))
+        nextState = ReadyToPlayState()
     }
 
     public mutating func onPlayerDidFailToBecomeReady() {
-        let showAlertAction = ShowAlertAction(text: "Unable to load media", button: "OK")
-        world.perform(showAlertAction)
+        world.send(ShowAlertAction(text: "Unable to load media", button: "OK"))
         nextState = ReadyToLoadURLState(url: url)
     }
 
     public mutating func onUserDidTapPauseButton() {
-        world.perform(Player.LoadAction(url: nil))
+        world.send(Player.Load(url: nil))
         nextState = ReadyToLoadURLState(url: url)
     }
 
@@ -59,7 +57,7 @@ extension WaitingForPlayerToLoadState {
 extension WaitingForPlayerToLoadState {
 
     public mutating func reset() {
-        world.perform(Player.LoadAction(url: nil))
+        world.send(Player.Load(url: nil))
         nextState = WaitingForURLState()
     }
 

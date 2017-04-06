@@ -22,7 +22,7 @@
 
 import Stateful
 
-struct ShowAlertAction: Action {
+struct ShowAlertAction: Output {
 
     let text: String
     let button: String

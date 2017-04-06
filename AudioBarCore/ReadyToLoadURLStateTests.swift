@@ -30,7 +30,7 @@ extension ReadyToLoadURLStateTests {
     func testOnUserDidTapPlayButton() {
         var state = ReadyToLoadURLState(url: .foo)
         let mock = injectMock(into: state.world)
-        mock.expect(Player.LoadAction(url: .foo))
+        mock.expect(Player.Load(url: .foo))
         state.onUserDidTapPlayButton()
         expect(state.nextState, equals: WaitingForPlayerToLoadState(url: .foo))
     }

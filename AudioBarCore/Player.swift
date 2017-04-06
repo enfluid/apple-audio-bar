@@ -30,57 +30,50 @@ struct Player {
 
 extension Player {
 
-    struct PlayAction: Action {}
-    struct PauseAction: Action {}
-
-}
-
-extension Player {
-
-    struct Info: Arbitrary {
-
-        var title: String?
-        var artist: String?
-        var album: String?
-        var artwork: Data?
-        let duration: TimeInterval
-
-        static let arbitrary = Player.Info(
-            title: "foo",
-            artist: "bar",
-            album: "baz",
-            artwork: Data(),
-            duration: 60
-        )
-
-    }
-
-    struct GetInfoAction: Action {
-        typealias Output = Info
-    }
-
-}
-
-extension Player {
-
-    struct LoadAction: Action {
+    struct Load: Output {
         let url: URL?
     }
 
-}
-
-extension Player {
-
-    struct SeekAction: Action {
-        let currentTime: TimeInterval
+    struct PlayingUpdate: Output {
+        let isPlaying: Bool
     }
-    
-}
 
-extension Player {
+    struct Playing: Input {
+        typealias Payload = Bool
+    }
 
-    struct GetCurrentTime: Action {
-        typealias Output = TimeInterval
+    struct ElapsedPlaybackTimeUpdate: Output {
+        let elapsedPlaybackTime: TimeInterval
+    }
+
+    struct ElapsedPlaybackTime: Input {
+        typealias Payload = TimeInterval?
+    }
+
+    struct PlaybackDuration: Input {
+        typealias Payload = TimeInterval
+    }
+
+    struct Metadata {
+
+        private init() {}
+
+        struct TrackName: Input {
+            typealias Payload = String?
+        }
+
+        struct ArtistName: Input {
+            typealias Payload = String?
+        }
+
+        struct AlbumName: Input {
+            typealias Payload = String?
+        }
+
+        struct ArtworkData: Input {
+            typealias Payload = Data?
+        }
+
     }
 
 }

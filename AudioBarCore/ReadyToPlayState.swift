@@ -25,61 +25,45 @@ import Stateful
 
 struct ReadyToPlayState: State, Effectful {
 
-    var isPlaying: Bool
-    var currentTime: TimeInterval? // This should not be optional
-    var info: Player.Info
-
     var nextState: State? = nil
     let world = World.shared
 
     static let seekInterval: TimeInterval = 15
 
-    init(isPlaying: Bool, currentTime: TimeInterval?, info: Player.Info) {
-        self.isPlaying = isPlaying
-        self.currentTime = currentTime
-        self.info = info
+}
+
+extension ReadyToPlayState {
+
+    public func onPlayerDidUpdateElapsedPlaybackTime() {}
+    public func onPlayerDidPlayToEnd() {}
+
+}
+
+extension ReadyToPlayState {
+
+    public func onUserDidTapPlayButton() {
+        world.send(Player.PlayingUpdate(isPlaying: true))
+    }
+
+    public func onUserDidTapPauseButton() {
+        world.send(Player.PlayingUpdate(isPlaying: false))
     }
 
 }
 
 extension ReadyToPlayState {
 
-    public mutating func onPlayerDidUpdateCurrentTime(_ currentTime: TimeInterval) {
-        self.currentTime = currentTime
+    public func onUserDidTapSeekBackButton() {
+        let oldElapsedPlaybackTime = world.receive(Player.ElapsedPlaybackTime())
+        let newElapsedPlaybackTime = max(0, oldElapsedPlaybackTime! - ReadyToPlayState.seekInterval)
+        world.send(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: newElapsedPlaybackTime))
     }
 
-    public mutating func onPlayerDidPlayToEnd() {
-        currentTime = info.duration
-        isPlaying = false
-    }
-
-}
-
-extension ReadyToPlayState {
-
-    public mutating func onUserDidTapPlayButton() {
-        world.perform(Player.PlayAction())
-        isPlaying = true
-
-    }
-
-    public mutating func onUserDidTapPauseButton() {
-        world.perform(Player.PauseAction())
-        isPlaying = false
-    }
-
-}
-
-extension ReadyToPlayState {
-
-    public mutating func onUserDidTapSeekBackButton() {
-        currentTime = max(0, currentTime! - ReadyToPlayState.seekInterval)
-        world.perform(Player.SeekAction(currentTime: currentTime!))
-    }
-
-    public mutating func onUserDidTapSeekForwardButton() {
-        currentTime = min(info.duration, currentTime! + ReadyToPlayState.seekInterval)
-        world.perform(Player.SeekAction(currentTime: currentTime!))
+    public func onUserDidTapSeekForwardButton() {
+        let playbackDuration = world.receive(Player.PlaybackDuration())
+        let oldElapsedPlaybackTime = world.receive(Player.ElapsedPlaybackTime())
+        let newElapsedPlaybackTime = min(playbackDuration, oldElapsedPlaybackTime! + ReadyToPlayState.seekInterval)
+        world.send(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: newElapsedPlaybackTime))
     }
 
 }
@@ -87,7 +71,7 @@ extension ReadyToPlayState {
 extension ReadyToPlayState {
 
     public mutating func reset() {
-        world.perform(Player.LoadAction(url: nil))
+        world.send(Player.Load(url: nil))
         nextState = WaitingForURLState()
     }
     
@@ -96,6 +80,53 @@ extension ReadyToPlayState {
 extension ReadyToPlayState: Presentable {
 
     func present() -> View {
+
+        let isPlaying = world.receive(Player.Playing())
+        let elapsedPlaybackTime = world.receive(Player.ElapsedPlaybackTime())
+
+        var playPauseButtonImage: AudioBarView.PlayPauseButtonImage {
+            return isPlaying ? .pause : .play
+        }
+
+        var remainingTime: TimeInterval? {
+            guard let elapsedPlaybackTime = elapsedPlaybackTime else {
+                return nil
+            }
+            let playbackDuration = world.receive(Player.PlaybackDuration())
+            return playbackDuration - elapsedPlaybackTime
+        }
+
+        var remainingTimeText: String {
+            guard let remainingTime = remainingTime else {
+                return ""
+            }
+            let formatter = DateComponentsFormatter()
+            formatter.allowedUnits = [.minute, .second]
+            formatter.zeroFormattingBehavior = .pad
+            return "-" + formatter.string(from: remainingTime)!
+        }
+
+        var isPlayPauseButtonEnabled: Bool {
+            guard let remainingTime = remainingTime else {
+                return true
+            }
+            return remainingTime > 0
+        }
+
+        var isSeekBackButtonEnabled: Bool {
+            guard let elapsedPlaybackTime = elapsedPlaybackTime else {
+                return false
+            }
+            return elapsedPlaybackTime > 0
+        }
+
+        var isSeekForwardButtonEnabled: Bool {
+            guard let remainingTime = remainingTime else {
+                return false
+            }
+            return remainingTime > 0
+        }
+
         return AudioBarView(
             playPauseButtonImage: playPauseButtonImage,
             isPlayPauseButtonEnabled: isPlayPauseButtonEnabled,
@@ -103,59 +134,17 @@ extension ReadyToPlayState: Presentable {
             playbackTime: remainingTimeText,
             isSeekBackButtonEnabled: isSeekBackButtonEnabled,
             isSeekForwardButtonEnabled: isSeekForwardButtonEnabled,
-            isLoadingIndicatorVisible: isPlaying && currentTime == nil,
+            isLoadingIndicatorVisible: isPlaying && elapsedPlaybackTime == nil,
             isPlayCommandEnabled: !isPlaying && isPlayPauseButtonEnabled,
             isPauseCommandEnabled: isPlaying && isPlayPauseButtonEnabled,
             seekInterval: ReadyToPlayState.seekInterval,
-            playbackDuration: info.duration,
-            elapsedPlaybackTime: currentTime ?? 0,
-            trackName: info.title,
-            artistName: info.artist,
-            albumName: info.album,
-            artworkData: info.artwork
+            playbackDuration: world.receive(Player.PlaybackDuration()),
+            elapsedPlaybackTime: elapsedPlaybackTime ?? 0,
+            trackName: world.receive(Player.Metadata.TrackName()),
+            artistName: world.receive(Player.Metadata.ArtistName()),
+            albumName: world.receive(Player.Metadata.AlbumName()),
+            artworkData: world.receive(Player.Metadata.ArtworkData())
         )
     }
 
-    private var playPauseButtonImage: AudioBarView.PlayPauseButtonImage {
-        return isPlaying ? .pause : .play
-    }
-
-    private var remainingTime: TimeInterval? {
-        guard let currentTime = currentTime else {
-            return nil
-        }
-        return info.duration - currentTime
-    }
-
-    private var remainingTimeText: String {
-        guard let remainingTime = remainingTime else {
-            return ""
-        }
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.minute, .second]
-        formatter.zeroFormattingBehavior = .pad
-        return "-" + formatter.string(from: remainingTime)!
-    }
-
-    private var isPlayPauseButtonEnabled: Bool {
-        guard let remainingTime = remainingTime else {
-            return true
-        }
-        return remainingTime > 0
-    }
-
-    private var isSeekBackButtonEnabled: Bool {
-        guard let currentTime = currentTime else {
-            return false
-        }
-        return currentTime > 0
-    }
-
-    private var isSeekForwardButtonEnabled: Bool {
-        guard let remainingTime = remainingTime else {
-            return false
-        }
-        return remainingTime > 0
-    }
-    
 }

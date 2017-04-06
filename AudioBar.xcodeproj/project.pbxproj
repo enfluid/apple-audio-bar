@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		910601261E93D480008CE92D /* URL+Arbitrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 910601251E93D480008CE92D /* URL+Arbitrary.swift */; };
 		910601281E93D510008CE92D /* XCTestCase+Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 910601271E93D510008CE92D /* XCTestCase+Tests.swift */; };
-		9106012E1E943C96008CE92D /* ReadyToPlayState+Default.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9106012C1E943C91008CE92D /* ReadyToPlayState+Default.swift */; };
 		913FE8B61E8E8EAA00F92B89 /* AVAsset+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 913FE8B51E8E8EAA00F92B89 /* AVAsset+Metadata.swift */; };
 		91930F451E03158F006A0091 /* AudioBar.h in Headers */ = {isa = PBXBuildFile; fileRef = 91930F371E03158F006A0091 /* AudioBar.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		91930F711E0315BC006A0091 /* AudioBar.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91930F6E1E0315BC006A0091 /* AudioBar.storyboard */; };
@@ -18,7 +17,6 @@
 		91C1561D1E6F2C6800FA2740 /* CMTime+TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C1561C1E6F2C6800FA2740 /* CMTime+TimeInterval.swift */; };
 		91C186461E031A4D006ECAD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91C186451E031A4D006ECAD8 /* Assets.xcassets */; };
 		91D8A1E41E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91D8A1E31E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift */; };
-		91D8A1F31E950B8300D60A47 /* PlayerInfo+Arbitrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 910601291E93D9EC008CE92D /* PlayerInfo+Arbitrary.swift */; };
 		91F077E21E8D3D62000B5A61 /* Stateful.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F077E11E8D3D62000B5A61 /* Stateful.framework */; };
 		91FC614B1E93C1B8006003E1 /* AudioBarCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91FC61421E93C1B8006003E1 /* AudioBarCore.framework */; };
 		91FC615A1E93C206006003E1 /* WaitingForURLState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FC61591E93C206006003E1 /* WaitingForURLState.swift */; };
@@ -49,8 +47,6 @@
 /* Begin PBXFileReference section */
 		910601251E93D480008CE92D /* URL+Arbitrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "URL+Arbitrary.swift"; sourceTree = "<group>"; };
 		910601271E93D510008CE92D /* XCTestCase+Tests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Tests.swift"; sourceTree = "<group>"; };
-		910601291E93D9EC008CE92D /* PlayerInfo+Arbitrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PlayerInfo+Arbitrary.swift"; sourceTree = "<group>"; };
-		9106012C1E943C91008CE92D /* ReadyToPlayState+Default.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ReadyToPlayState+Default.swift"; sourceTree = "<group>"; };
 		913FE8B51E8E8EAA00F92B89 /* AVAsset+Metadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVAsset+Metadata.swift"; sourceTree = "<group>"; };
 		91930F341E03158F006A0091 /* AudioBar.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AudioBar.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		91930F371E03158F006A0091 /* AudioBar.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AudioBar.h; sourceTree = "<group>"; };
@@ -155,8 +151,6 @@
 			children = (
 				910601271E93D510008CE92D /* XCTestCase+Tests.swift */,
 				910601251E93D480008CE92D /* URL+Arbitrary.swift */,
-				910601291E93D9EC008CE92D /* PlayerInfo+Arbitrary.swift */,
-				9106012C1E943C91008CE92D /* ReadyToPlayState+Default.swift */,
 				91A85E0C1E94D4CE0049E5C6 /* TimeInterval+Arbitrary.swift */,
 			);
 			name = Helpers;
@@ -395,12 +389,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9106012E1E943C96008CE92D /* ReadyToPlayState+Default.swift in Sources */,
 				91FC61671E93C2D4006003E1 /* ReadyToLoadURLStateTests.swift in Sources */,
 				91FC61651E93C2CA006003E1 /* WaitingForURLStateTests.swift in Sources */,
 				910601261E93D480008CE92D /* URL+Arbitrary.swift in Sources */,
 				91D8A1E41E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift in Sources */,
-				91D8A1F31E950B8300D60A47 /* PlayerInfo+Arbitrary.swift in Sources */,
 				91FC61691E93C2DD006003E1 /* WaitingForPlayerToLoadStateTests.swift in Sources */,
 				91A85E0D1E94D4CE0049E5C6 /* TimeInterval+Arbitrary.swift in Sources */,
 				910601281E93D510008CE92D /* XCTestCase+Tests.swift in Sources */,

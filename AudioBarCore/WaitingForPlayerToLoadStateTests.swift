@@ -30,10 +30,9 @@ extension WaitingForPlayerToLoadStateTests {
     func testOnPlayerDidBecomeReady() {
         var state = WaitingForPlayerToLoadState(url: .foo)
         let mock = injectMock(into: state.world)
-        mock.expect(Player.PlayAction())
-        mock.expect(Player.GetInfoAction(), result: .arbitrary)
+        mock.expect(Player.PlayingUpdate(isPlaying: true))
         state.onPlayerDidBecomeReady()
-        expect(state.nextState, equals: ReadyToPlayState(isPlaying: true, currentTime: nil, info: .arbitrary))
+        expect(state.nextState, equals: ReadyToPlayState())
     }
 
     func testOnPlayerDidFailToBecomeReady() {
@@ -47,7 +46,7 @@ extension WaitingForPlayerToLoadStateTests {
     func testOnUserDidTapPauseButton() {
         var state = WaitingForPlayerToLoadState(url: .foo)
         let mock = injectMock(into: state.world)
-        mock.expect(Player.LoadAction(url: nil))
+        mock.expect(Player.Load(url: nil))
         state.onUserDidTapPauseButton()
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
     }
@@ -59,7 +58,7 @@ extension WaitingForPlayerToLoadStateTests {
     func testReset() {
         var state = WaitingForPlayerToLoadState(url: .foo)
         let mock = injectMock(into: state.world)
-        mock.expect(Player.LoadAction(url: nil))
+        mock.expect(Player.Load(url: nil))
         state.reset()
         expect(state.nextState, equals: WaitingForURLState())
     }

@@ -32,18 +32,12 @@ final class ReadyToPlayStateTests: XCTestCase {
 
 extension ReadyToPlayStateTests {
 
-    func testOnPlayerDidUpdateCurrentTime() {
-        state.currentTime = .foo
-        state.onPlayerDidUpdateCurrentTime(.bar)
-        expect(state.currentTime, equals: .bar)
+    func testOnPlayerDidUpdateElapsedPlaybackTime() {
+        state.onPlayerDidUpdateElapsedPlaybackTime()
     }
 
     func testOnPlayerDidEnd() {
-        state.currentTime = .foo
-        state.info = .init(duration: .bar)
         state.onPlayerDidPlayToEnd()
-        expect(state.isPlaying, equals: false)
-        expect(state.currentTime, equals: .bar)
     }
 
 }
@@ -51,19 +45,15 @@ extension ReadyToPlayStateTests {
 extension ReadyToPlayStateTests {
 
     func testOnUserDidTapPlaybutton() {
-        state.isPlaying = false
         let mock = injectMock(into: state.world)
-        mock.expect(Player.PlayAction())
+        mock.expect(Player.PlayingUpdate(isPlaying: true))
         state.onUserDidTapPlayButton()
-        expect(state.isPlaying, equals: true)
     }
 
     func testOnUserDidTapPauseButton() {
-        state.isPlaying = true
         let mock = injectMock(into: state.world)
-        mock.expect(Player.PauseAction())
+        mock.expect(Player.PlayingUpdate(isPlaying: false))
         state.onUserDidTapPauseButton()
-        expect(state.isPlaying, equals: false)
     }
 
 }
@@ -71,43 +61,38 @@ extension ReadyToPlayStateTests {
 extension ReadyToPlayStateTests {
 
     func testOnUserDidTapSeekBackButton1() {
-        state.currentTime = ReadyToPlayState.seekInterval + 1
         let mock = injectMock(into: state.world)
-        mock.expect(Player.SeekAction(currentTime: 1))
+        mock.stub(Player.ElapsedPlaybackTime(), result: ReadyToPlayState.seekInterval + 1)
+        mock.expect(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: 1))
         state.onUserDidTapSeekBackButton()
-        expect(state.currentTime, equals: 1)
     }
 
     func testOnUserDidTapSeekBackButton2() {
-        state.currentTime = ReadyToPlayState.seekInterval + 2
         let mock = injectMock(into: state.world)
-        mock.expect(Player.SeekAction(currentTime: 2))
+        mock.stub(Player.ElapsedPlaybackTime(), result: ReadyToPlayState.seekInterval + 2)
+        mock.expect(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: 2))
         state.onUserDidTapSeekBackButton()
-        expect(state.currentTime, equals: 2)
     }
 
     func testOnUserDidTapSeekBackButton3() {
-        state.currentTime = ReadyToPlayState.seekInterval
         let mock = injectMock(into: state.world)
-        mock.expect(Player.SeekAction(currentTime: 0))
+        mock.stub(Player.ElapsedPlaybackTime(), result: ReadyToPlayState.seekInterval)
+        mock.expect(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: 0))
         state.onUserDidTapSeekBackButton()
-        expect(state.currentTime, equals: 0)
     }
 
     func testOnUserDidTapSeekBackButton4() {
-        state.currentTime = ReadyToPlayState.seekInterval - 1
         let mock = injectMock(into: state.world)
-        mock.expect(Player.SeekAction(currentTime: 0))
+        mock.stub(Player.ElapsedPlaybackTime(), result: ReadyToPlayState.seekInterval - 1)
+        mock.expect(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: 0))
         state.onUserDidTapSeekBackButton()
-        expect(state.currentTime, equals: 0)
     }
 
     func testOnUserDidTapSeekBackButton5() {
-        state.currentTime = ReadyToPlayState.seekInterval - 2
         let mock = injectMock(into: state.world)
-        mock.expect(Player.SeekAction(currentTime: 0))
+        mock.stub(Player.ElapsedPlaybackTime(), result: ReadyToPlayState.seekInterval - 2)
+        mock.expect(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: 0))
         state.onUserDidTapSeekBackButton()
-        expect(state.currentTime, equals: 0)
     }
 
 }
@@ -115,41 +100,37 @@ extension ReadyToPlayStateTests {
 extension ReadyToPlayStateTests {
 
     func testOnUserDidTapSeekForwardButton1() {
-        state.currentTime = 0
-        state.info = .init(duration: .infinity)
         let mock = injectMock(into: state.world)
-        mock.expect(Player.SeekAction(currentTime: 0 + ReadyToPlayState.seekInterval))
+        mock.stub(Player.PlaybackDuration(), result: .infinity)
+        mock.stub(Player.ElapsedPlaybackTime(), result: 0)
+        mock.expect(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: 0 + ReadyToPlayState.seekInterval))
         state.onUserDidTapSeekForwardButton()
-        expect(state.currentTime, equals: 0 + ReadyToPlayState.seekInterval)
     }
 
     func testOnUserDidTapSeekForwardButton2() {
-        state.currentTime = 1
-        state.info = .init(duration: .infinity)
         let mock = injectMock(into: state.world)
-        mock.expect(Player.SeekAction(currentTime: 1 + ReadyToPlayState.seekInterval))
+        mock.stub(Player.PlaybackDuration(), result: .infinity)
+        mock.stub(Player.ElapsedPlaybackTime(), result: 1)
+        mock.expect(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: 1 + ReadyToPlayState.seekInterval))
         state.onUserDidTapSeekForwardButton()
-        expect(state.currentTime, equals: 1 + ReadyToPlayState.seekInterval)
     }
 
     func testOnUserDidTapSeekForwardButton3() {
         precondition(ReadyToPlayState.seekInterval < 60)
-        state.currentTime = 60 - 1
-        state.info = .init(duration: 60)
         let mock = injectMock(into: state.world)
-        mock.expect(Player.SeekAction(currentTime: 60))
+        mock.stub(Player.PlaybackDuration(), result: 60)
+        mock.stub(Player.ElapsedPlaybackTime(), result: 60 - 1)
+        mock.expect(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: 60))
         state.onUserDidTapSeekForwardButton()
-        expect(state.currentTime, equals: 60)
     }
 
     func testOnUserDidTapSeekForwardButton4() {
         precondition(ReadyToPlayState.seekInterval < 60)
-        state.currentTime = 60 - 2
-        state.info = .init(duration: 60)
         let mock = injectMock(into: state.world)
-        mock.expect(Player.SeekAction(currentTime: 60))
+        mock.stub(Player.PlaybackDuration(), result: 60)
+        mock.stub(Player.ElapsedPlaybackTime(), result: 60 - 2)
+        mock.expect(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: 60))
         state.onUserDidTapSeekForwardButton()
-        expect(state.currentTime, equals: 60)
     }
 
 }
@@ -158,7 +139,7 @@ extension ReadyToPlayStateTests {
 
     func testReset() {
         let mock = injectMock(into: state.world)
-        mock.expect(Player.LoadAction(url: nil))
+        mock.expect(Player.Load(url: nil))
         state.reset()
         expect(state.nextState, equals: WaitingForURLState())
     }

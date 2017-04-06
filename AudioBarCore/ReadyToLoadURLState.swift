@@ -38,7 +38,7 @@ struct ReadyToLoadURLState: State, Effectful {
 extension ReadyToLoadURLState {
 
     public mutating func onUserDidTapPlayButton() {
-        world.perform(Player.LoadAction(url: url))
+        world.send(Player.Load(url: url))
         nextState = WaitingForPlayerToLoadState(url: url)
     }
 
