@@ -39,6 +39,22 @@ final class ReadyToPlayStateViewTests: XCTestCase {
 
 extension ReadyToPlayStateViewTests {
 
+    func testPrepareToLoad1() {
+        mock.expect(Player.Load(url: nil))
+        state.prepareToLoad(.foo)
+        expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
+    }
+
+    func testPrepareToLoad2() {
+        mock.expect(Player.Load(url: nil))
+        state.prepareToLoad(nil)
+        expect(state.nextState, equals: WaitingForURLState())
+    }
+    
+}
+
+extension ReadyToPlayStateViewTests {
+
     func testPlayPauseButtonImage1() {
         mock.stub(Player.Playing(), result: true)
         expect(audioBarView.playPauseButtonImage, equals: .pause)

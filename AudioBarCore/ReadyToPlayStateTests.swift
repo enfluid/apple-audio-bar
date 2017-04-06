@@ -148,14 +148,3 @@ extension ReadyToPlayStateTests {
     }
 
 }
-
-extension ReadyToPlayStateTests {
-
-    func testReset() {
-        let mock = injectMock(into: state.world)
-        mock.expect(Player.Load(url: nil))
-        state.reset()
-        expect(state.nextState, equals: WaitingForURLState())
-    }
-
-}

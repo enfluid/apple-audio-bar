@@ -27,6 +27,26 @@ final class WaitingForPlayerToLoadStateTests: XCTestCase {}
 
 extension WaitingForPlayerToLoadStateTests {
 
+    func testPrepareToLoad1() {
+        var state = WaitingForPlayerToLoadState(url: .foo)
+        let mock = injectMock(into: state.world)
+        mock.expect(Player.Load(url: nil))
+        state.prepareToLoad(.bar)
+        expect(state.nextState, equals: ReadyToLoadURLState(url: .bar))
+    }
+
+    func testPrepareToLoad2() {
+        var state = WaitingForPlayerToLoadState(url: .foo)
+        let mock = injectMock(into: state.world)
+        mock.expect(Player.Load(url: nil))
+        state.prepareToLoad(nil)
+        expect(state.nextState, equals: WaitingForURLState())
+    }
+    
+}
+
+extension WaitingForPlayerToLoadStateTests {
+
     func testOnPlayerDidBecomeReady() {
         var state = WaitingForPlayerToLoadState(url: .foo)
         let mock = injectMock(into: state.world)
@@ -61,18 +81,6 @@ extension WaitingForPlayerToLoadStateTests {
         mock.expect(Player.Load(url: nil))
         state.onUserDidTapPlayPauseButton()
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
-    }
-
-}
-
-extension WaitingForPlayerToLoadStateTests {
-
-    func testReset() {
-        var state = WaitingForPlayerToLoadState(url: .foo)
-        let mock = injectMock(into: state.world)
-        mock.expect(Player.Load(url: nil))
-        state.reset()
-        expect(state.nextState, equals: WaitingForURLState())
     }
 
 }

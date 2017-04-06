@@ -47,9 +47,15 @@ extension ReadyToLoadURLStateTests {
 
 extension ReadyToLoadURLStateTests {
 
-    func testReset() {
+    func testPrepareToLoad1() {
         var state = ReadyToLoadURLState(url: .foo)
-        state.reset()
+        state.prepareToLoad(.bar)
+        expect(state.url, equals: .bar)
+    }
+
+    func testPrepareToLoad2() {
+        var state = ReadyToLoadURLState(url: .foo)
+        state.prepareToLoad(nil)
         expect(state.nextState, equals: WaitingForURLState())
     }
 

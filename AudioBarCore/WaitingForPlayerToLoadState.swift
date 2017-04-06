@@ -37,6 +37,19 @@ struct WaitingForPlayerToLoadState: State, Effectful {
 
 extension WaitingForPlayerToLoadState {
 
+    public mutating func prepareToLoad(_ url: URL?) {
+        world.send(Player.Load(url: nil))
+        if let url = url {
+            nextState = ReadyToLoadURLState(url: url)
+        } else {
+            nextState = WaitingForURLState()
+        }
+    }
+    
+}
+
+extension WaitingForPlayerToLoadState {
+
     public mutating func onPlayerDidBecomeReady() {
         world.send(Player.PlayingUpdate(isPlaying: true))
         nextState = ReadyToPlayState()
@@ -62,15 +75,6 @@ extension WaitingForPlayerToLoadState {
     private mutating func stop() {
         world.send(Player.Load(url: nil))
         nextState = ReadyToLoadURLState(url: url)
-    }
-
-}
-
-extension WaitingForPlayerToLoadState {
-
-    public mutating func reset() {
-        world.send(Player.Load(url: nil))
-        nextState = WaitingForURLState()
     }
 
 }

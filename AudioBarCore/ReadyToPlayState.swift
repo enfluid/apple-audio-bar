@@ -34,6 +34,19 @@ struct ReadyToPlayState: State, Effectful {
 
 extension ReadyToPlayState {
 
+    public mutating func prepareToLoad(_ url: URL?) {
+        world.send(Player.Load(url: nil))
+        if let url = url {
+            nextState = ReadyToLoadURLState(url: url)
+        } else {
+            nextState = WaitingForURLState()
+        }
+    }
+
+}
+
+extension ReadyToPlayState {
+
     public func onPlayerDidUpdateElapsedPlaybackTime() {}
     public func onPlayerDidPlayToEnd() {}
 
@@ -71,15 +84,6 @@ extension ReadyToPlayState {
         world.send(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: newElapsedPlaybackTime))
     }
 
-}
-
-extension ReadyToPlayState {
-
-    public mutating func reset() {
-        world.send(Player.Load(url: nil))
-        nextState = WaitingForURLState()
-    }
-    
 }
 
 extension ReadyToPlayState: Presentable {

@@ -25,12 +25,24 @@ import Stateful
 
 struct ReadyToLoadURLState: State, Effectful {
 
-    let url: URL
+    var url: URL
     let world = World.shared
     var nextState: State? = nil
 
     init(url: URL) {
         self.url = url
+    }
+
+}
+
+extension ReadyToLoadURLState {
+
+    public mutating func prepareToLoad(_ newUrl: URL?) {
+        if let newUrl = newUrl {
+            url = newUrl
+        } else {
+            nextState = WaitingForURLState()
+        }
     }
 
 }
@@ -48,14 +60,6 @@ extension ReadyToLoadURLState {
     private mutating func play() {
         world.send(Player.Load(url: url))
         nextState = WaitingForPlayerToLoadState(url: url)
-    }
-
-}
-
-extension ReadyToLoadURLState {
-
-    public mutating func reset() {
-        nextState = WaitingForURLState()
     }
 
 }
