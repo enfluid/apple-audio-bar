@@ -2,6 +2,7 @@ import UIKit
 import AVFoundation
 import MediaPlayer
 import Stateful
+import AudioBarCore
 
 public final class AudioBarViewController: UIViewController, StateControllerDelegate {
 

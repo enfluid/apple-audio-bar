@@ -14,6 +14,7 @@
 		91930F711E0315BC006A0091 /* AudioBar.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 91930F6E1E0315BC006A0091 /* AudioBar.storyboard */; };
 		91930F721E0315BC006A0091 /* AudioBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91930F6F1E0315BC006A0091 /* AudioBarViewController.swift */; };
 		91A85E0D1E94D4CE0049E5C6 /* TimeInterval+Sample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A85E0C1E94D4CE0049E5C6 /* TimeInterval+Sample.swift */; };
+		91ADA6E11E96A93D002CA8CD /* AudioBarCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91FC61421E93C1B8006003E1 /* AudioBarCore.framework */; };
 		91C1561D1E6F2C6800FA2740 /* CMTime+TimeInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C1561C1E6F2C6800FA2740 /* CMTime+TimeInterval.swift */; };
 		91C186461E031A4D006ECAD8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 91C186451E031A4D006ECAD8 /* Assets.xcassets */; };
 		91D8A1E41E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91D8A1E31E94E4FF00D60A47 /* ReadyToPlayStateViewTests.swift */; };
@@ -80,6 +81,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				91ADA6E11E96A93D002CA8CD /* AudioBarCore.framework in Frameworks */,
 				91F077E21E8D3D62000B5A61 /* Stateful.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -578,7 +580,6 @@
 				);
 				INFOPLIST_FILE = AudioBarCore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Salutis.AudioBarCore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -604,7 +605,6 @@
 				);
 				INFOPLIST_FILE = AudioBarCore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = Salutis.AudioBarCore;
 				PRODUCT_NAME = "$(TARGET_NAME)";
