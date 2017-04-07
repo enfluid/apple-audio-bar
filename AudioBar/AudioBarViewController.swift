@@ -67,7 +67,7 @@ public final class AudioBarViewController: UIViewController, StoreDelegate {
         store.perform { state in
             switch state {
             case var nextState as WaitingForURLState:
-                nextState.prepareToLoad(url: url)
+                nextState.prepareToLoad(url)
                 state = nextState
             case var nextState as ReadyToLoadURLState:
                 nextState.prepareToLoad(url)

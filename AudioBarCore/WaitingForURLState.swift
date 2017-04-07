@@ -33,7 +33,7 @@ public struct WaitingForURLState: State {
 
 extension WaitingForURLState {
 
-    public mutating func prepareToLoad(url: URL) {
+    public mutating func prepareToLoad(_ url: URL) {
         nextState = ReadyToLoadURLState(url: url)
     }
 

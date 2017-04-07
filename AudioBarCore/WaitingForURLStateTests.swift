@@ -34,7 +34,7 @@ final class WaitingForURLStateTests: XCTestCase {
 extension WaitingForURLStateTests {
 
     func testPrepareToLoad() {
-        state.prepareToLoad(url: .foo)
+        state.prepareToLoad(.foo)
         expect(state.nextState, equals: ReadyToLoadURLState(url: .foo))
     }
 
