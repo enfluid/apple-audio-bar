@@ -84,26 +84,28 @@ public final class AudioBarViewController: UIViewController, StoreDelegate {
         }
     }
 
-//
-//    public override func viewDidLoad() {
-//        super.viewDidLoad()
-//        configureCommandCenterCommands()
-//        volumeView.showsVolumeSlider = false
-//        volumeView.setRouteButtonImage(loadImage(withName: "AirPlay Icon"), for: .normal)
-//        audioRouteView.addSubview(volumeView)
-//        timeLabel.font = UIFont.monospacedDigitSystemFont(ofSize: timeLabel.font.pointSize, weight: UIFontWeightRegular)
-//        player.addPeriodicTimeObserver(forInterval: CMTime(timeInterval: 0.1), queue: nil) { [weak player, weak stateController] _ in
-//            guard player?.currentItem?.status == .readyToPlay else { return }
-//            guard let currentTime = player?.currentTime().timeInterval else { return }
-//            stateController?.dispatch(.playerDidUpdateCurrentTime(currentTime))
-//        }
-//    }
-//
-//    public override func viewDidLayoutSubviews() {
-//        super.viewDidLayoutSubviews()
-//        volumeView.frame = audioRouteView.bounds
-//    }
-//
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        configureCommandCenterCommands()
+        volumeView.showsVolumeSlider = false
+        volumeView.setRouteButtonImage(loadImage(withName: "AirPlay Icon"), for: .normal)
+        audioRouteView.addSubview(volumeView)
+        timeLabel.font = UIFont.monospacedDigitSystemFont(ofSize: timeLabel.font.pointSize, weight: UIFontWeightRegular)
+        player.addPeriodicTimeObserver(forInterval: CMTime(timeInterval: 0.1), queue: nil) { [weak player, weak store] _ in
+            guard player?.currentItem?.status == .readyToPlay else { return }
+            guard let currentTime = player?.currentTime().timeInterval else { return }
+            store?.perform { state in
+                let nextState = state as! ReadyToPlayState
+                nextState.onPlayerDidUpdateElapsedPlaybackTime(currentTime)
+            }
+        }
+    }
+
+    public override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        volumeView.frame = audioRouteView.bounds
+    }
+
 //    public func stateControllerDidUpdate(_ view: AudioBar.View) {
 //
 //        var playPauseButtonImage: UIImage {
@@ -154,7 +156,7 @@ public final class AudioBarViewController: UIViewController, StoreDelegate {
 //        nowPlayingInfoCenter.nowPlayingInfo = nowPlayingInfo
 //
 //    }
-//
+
 //    public func stateControllerDidRequest(_ action: AudioBar.Action) -> Any {
 //
 //        switch action {
@@ -209,76 +211,114 @@ public final class AudioBarViewController: UIViewController, StoreDelegate {
 //        }
 //
 //    }
-//
-//    private func configureCommandCenterCommands() {
-//        remoteCommandCenter.togglePlayPauseCommand.addTarget { [weak self, weak stateController] _ in
-//            guard stateController!.view.isPlayPauseButtonEnabled else { return .commandFailed }
-//            self!.userDidTapPlayPauseButton()
-//            return .success
-//        }
-//        remoteCommandCenter.playCommand.addTarget { [weak stateController] _ in
-//            guard stateController!.view.isPlayCommandEnabled else { return .commandFailed }
-//            stateController!.dispatch(.userDidTapPlayButton)
-//            return .success
-//        }
-//        remoteCommandCenter.pauseCommand.addTarget { [weak stateController] _ in
-//            guard stateController!.view.isPauseCommandEnabled else { return .commandFailed }
-//            stateController!.dispatch(.userDidTapPauseButton)
-//            return .success
-//        }
-//        remoteCommandCenter.skipForwardCommand.addTarget { [weak stateController] _ in
-//            guard stateController!.view.isSeekForwardButtonEnabled else { return .commandFailed }
-//            stateController!.dispatch(.userDidTapSeekForwardButton)
-//            return .success
-//        }
-//        remoteCommandCenter.skipBackwardCommand.addTarget { [weak stateController] _ in
-//            guard stateController!.view.isSeekBackButtonEnabled else { return .commandFailed }
-//            stateController!.dispatch(.userDidTapSeekBackButton)
-//            return .success
-//        }
-//    }
-//
-//    private func beginObservingPlayerItem(_ playerItem: AVPlayerItem) {
-//        playerItem.addObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), options: [.old, .new], context: nil)
-//        NotificationCenter.default.addObserver(self, selector: #selector(playerDidPlayToEnd), name: .AVPlayerItemDidPlayToEndTime, object: playerItem)
-//    }
-//
-//    @objc private func playerDidPlayToEnd() {
-//        stateController.dispatch(.playerDidPlayToEnd)
-//    }
-//
-//    private func endObservingPlayerItem(_ playerItem: AVPlayerItem) {
-//        playerItem.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
-//        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: playerItem)
-//    }
-//
-//    public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-//        if let playerItem = player.currentItem, object as? AVPlayerItem == playerItem, keyPath == #keyPath(AVPlayerItem.status) {
-//            guard change![.oldKey] as! NSValue != change![.newKey] as! NSValue else { return }
-//            switch playerItem.status {
-//            case .unknown:
-//                break
-//            case .readyToPlay:
-//                stateController.dispatch(.playerDidBecomeReady)
-//            case .failed:
-//                stateController.dispatch(.playerDidFailToBecomeReady)
-//            }
-//        } else {
-//            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-//        }
-//    }
-//
-//    public static func instantiateFromStoryboard() -> AudioBarViewController {
-//        let storyboard = UIStoryboard(name: "AudioBar", bundle: bundle)
-//        return storyboard.instantiateInitialViewController() as! AudioBarViewController
-//    }
-//
-//    private func loadImage(withName name: String) -> UIImage {
-//        return UIImage(named: name, in: AudioBarViewController.bundle, compatibleWith: traitCollection)!
-//    }
-//
-//    private static var bundle: Bundle {
-//        return Bundle(for: AudioBarViewController.self)
-//    }
+
+    private func configureCommandCenterCommands() {
+        let view = store.view as! AudioBarView
+        remoteCommandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            guard view.isPlayPauseButtonEnabled else { return .commandFailed }
+            self!.userDidTapPlayPauseButton()
+            return .success
+        }
+        remoteCommandCenter.playCommand.addTarget { [weak store] _ in
+            guard view.isPlayCommandEnabled else { return .commandFailed }
+            store!.perform { state in
+                switch state {
+                case var nextState as ReadyToLoadURLState:
+                    nextState.onUserDidTapPlayButton()
+                    state = nextState
+                case let nextState as ReadyToPlayState:
+                    nextState.onUserDidTapPlayButton()
+                default:
+                    fatalError()
+                }
+            }
+            return .success
+        }
+        remoteCommandCenter.pauseCommand.addTarget { [weak store] _ in
+            guard view.isPauseCommandEnabled else { return .commandFailed }
+            store!.perform { state in
+                switch state {
+                case var nextState as WaitingForPlayerToLoadState:
+                    nextState.onUserDidTapPauseButton()
+                    state = nextState
+                case let nextState as ReadyToPlayState:
+                    nextState.onUserDidTapPauseButton()
+                default:
+                    fatalError()
+                }
+            }
+            return .success
+        }
+        remoteCommandCenter.skipForwardCommand.addTarget { [weak store] _ in
+            guard view.isSeekForwardButtonEnabled else { return .commandFailed }
+            store!.perform { state in
+                let nextState = state as! ReadyToPlayState
+                nextState.onUserDidTapSeekForwardButton()
+            }
+            return .success
+        }
+        remoteCommandCenter.skipBackwardCommand.addTarget { [weak store] _ in
+            guard view.isSeekBackButtonEnabled else { return .commandFailed }
+            store!.perform { state in
+                let nextState = state as! ReadyToPlayState
+                nextState.onUserDidTapSeekBackButton()
+            }
+            return .success
+        }
+    }
+
+    private func beginObservingPlayerItem(_ playerItem: AVPlayerItem) {
+        playerItem.addObserver(self, forKeyPath: #keyPath(AVPlayerItem.status), options: [.old, .new], context: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(playerDidPlayToEnd), name: .AVPlayerItemDidPlayToEndTime, object: playerItem)
+    }
+
+    @objc private func playerDidPlayToEnd() {
+        store.perform { state in
+            let nextState = state as! ReadyToPlayState
+            nextState.onPlayerDidPlayToEnd()
+        }
+    }
+
+    private func endObservingPlayerItem(_ playerItem: AVPlayerItem) {
+        playerItem.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
+        NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: playerItem)
+    }
+
+    public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+        if let playerItem = player.currentItem, object as? AVPlayerItem == playerItem, keyPath == #keyPath(AVPlayerItem.status) {
+            guard change![.oldKey] as! NSValue != change![.newKey] as! NSValue else { return }
+            switch playerItem.status {
+            case .unknown:
+                break
+            case .readyToPlay:
+                store.perform { state in
+                    var nextState = state as! WaitingForPlayerToLoadState
+                    nextState.onPlayerDidBecomeReady()
+                    state = nextState
+                }
+            case .failed:
+                store.perform { state in
+                    var nextState = state as! WaitingForPlayerToLoadState
+                    nextState.onPlayerDidFailToBecomeReady()
+                    state = nextState
+                }
+            }
+        } else {
+            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+        }
+    }
+
+    public static func instantiateFromStoryboard() -> AudioBarViewController {
+        let storyboard = UIStoryboard(name: "AudioBar", bundle: bundle)
+        return storyboard.instantiateInitialViewController() as! AudioBarViewController
+    }
+
+    private func loadImage(withName name: String) -> UIImage {
+        return UIImage(named: name, in: AudioBarViewController.bundle, compatibleWith: traitCollection)!
+    }
+
+    private static var bundle: Bundle {
+        return Bundle(for: AudioBarViewController.self)
+    }
 
 }

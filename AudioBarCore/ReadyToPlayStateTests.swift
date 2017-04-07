@@ -33,7 +33,7 @@ final class ReadyToPlayStateTests: XCTestCase {
 extension ReadyToPlayStateTests {
 
     func testOnPlayerDidUpdateElapsedPlaybackTime() {
-        state.onPlayerDidUpdateElapsedPlaybackTime()
+        state.onPlayerDidUpdateElapsedPlaybackTime(0)
     }
 
     func testOnPlayerDidEnd() {

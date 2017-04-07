@@ -47,7 +47,7 @@ extension ReadyToPlayState {
 
 extension ReadyToPlayState {
 
-    public func onPlayerDidUpdateElapsedPlaybackTime() {}
+    public func onPlayerDidUpdateElapsedPlaybackTime(_ currentTime: TimeInterval) {}
     public func onPlayerDidPlayToEnd() {}
 
 }
