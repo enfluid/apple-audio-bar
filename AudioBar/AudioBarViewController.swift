@@ -45,24 +45,45 @@ public final class AudioBarViewController: UIViewController, StoreDelegate {
                 nextState.onUserDidTapPlayPauseButton()
             default:
                 fatalError()
+            }
         }
     }
 
-//    @IBAction private func userDidTapSeekForwardButton() {
-//        stateController.dispatch(.userDidTapSeekForwardButton)
-//    }
-//
-//    @IBAction private func userDidTapSeekBackButton() {
-//        stateController.dispatch(.userDidTapSeekBackButton)
-//    }
-//
-//    public func loadURL(url: URL) {
-//        stateController.dispatch(.prepareToLoad(url))
-//    }
-//
-//    public func reset() {
-//        stateController.dispatch(.reset)
-//    }
+    @IBAction private func userDidTapSeekForwardButton() {
+        store.perform { state in
+            let nextState = state as! ReadyToPlayState
+            nextState.onUserDidTapSeekForwardButton()
+        }
+    }
+
+    @IBAction private func userDidTapSeekBackButton() {
+        store.perform { state in
+            let nextState = state as! ReadyToPlayState
+            nextState.onUserDidTapSeekBackButton()
+        }
+    }
+
+    public func loadURL(url: URL) {
+        store.perform { state in
+            switch state {
+            case var nextState as WaitingForURLState:
+                nextState.prepareToLoad(url: url)
+                state = nextState
+            case var nextState as ReadyToLoadURLState:
+                nextState.prepareToLoad(url)
+                state = nextState
+            case var nextState as WaitingForPlayerToLoadState:
+                nextState.prepareToLoad(url)
+                state = nextState
+            case var nextState as ReadyToPlayState:
+                nextState.prepareToLoad(url)
+                state = nextState
+            default:
+                fatalError()
+            }
+        }
+    }
+
 //
 //    public override func viewDidLoad() {
 //        super.viewDidLoad()
