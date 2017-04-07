@@ -25,7 +25,7 @@ import Stateful
 
 public struct ReadyToLoadURLState: State, Effectful {
 
-    fileprivate var url: URL
+    var url: URL
 
     public let world = World.shared
     public var nextState: State?
