@@ -6,14 +6,114 @@ import AudioBarCore
 
 public final class AudioBarViewController: UIViewController, StoreDelegate {
 
-    private lazy var store: Store = .init(initialState: WaitingForURLState())
+    private lazy var store = Store(initialState: WaitingForURLState())
 
     public func store(_ store: Store, didOutput view: View) {
-        fatalError()
+
+        let view = view as! AudioBarView
+
+        var playPauseButtonImage: UIImage {
+            switch view.playPauseButtonImage {
+            case .play:
+                return loadImage(withName: "Play Button")
+            case .pause:
+                return loadImage(withName: "Pause Button")
+            }
+        }
+
+        playPauseButton.setImage(playPauseButtonImage, for: .normal)
+        playPauseButton.isEnabled = view.isPlayPauseButtonEnabled
+
+        seekBackButton.isHidden = view.areSeekButtonsHidden
+        seekBackButton.isEnabled = view.isSeekBackButtonEnabled
+
+        seekForwardButton.isHidden = view.areSeekButtonsHidden
+        seekForwardButton.isEnabled = view.isSeekForwardButtonEnabled
+
+        timeLabel.text = view.playbackTime
+
+        loadingIndicator.isHidden = !view.isLoadingIndicatorVisible
+
+        remoteCommandCenter.togglePlayPauseCommand.isEnabled = view.isPlayPauseButtonEnabled
+        remoteCommandCenter.playCommand.isEnabled = view.isPlayCommandEnabled
+        remoteCommandCenter.pauseCommand.isEnabled = view.isPauseCommandEnabled
+        remoteCommandCenter.skipForwardCommand.isEnabled = view.isSeekForwardButtonEnabled
+        remoteCommandCenter.skipBackwardCommand.isEnabled = view.isSeekBackButtonEnabled
+        remoteCommandCenter.skipForwardCommand.preferredIntervals = [.init(value: view.seekInterval)]
+        remoteCommandCenter.skipBackwardCommand.preferredIntervals = [.init(value: view.seekInterval)]
+
+        var nowPlayingInfo: [String: Any] = [:]
+        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = view.playbackDuration
+        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = view.elapsedPlaybackTime
+        if let trackName = view.trackName {
+            nowPlayingInfo[MPMediaItemPropertyTitle] = trackName
+        }
+        if let artistName = view.artistName {
+            nowPlayingInfo[MPMediaItemPropertyArtist] = artistName
+        }
+        if let albumName = view.albumName {
+            nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = albumName
+        }
+        if let artworkData = view.artworkData, let artwork = UIImage(data: artworkData) {
+            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: artwork)
+        }
+        nowPlayingInfoCenter.nowPlayingInfo = nowPlayingInfo
+
     }
 
     public func store(_ store: Store, didSend output: Output) {
-        fatalError()
+
+//        switch action {
+//
+//        case .player(let action):
+//
+//            switch action {
+//
+//            case .load(let url):
+//                if let playerItem = player.currentItem {
+//                    player.replaceCurrentItem(with: nil)
+//                    endObservingPlayerItem(playerItem)
+//                }
+//                if let url = url {
+//                    let playerItem = AVPlayerItem(url: url)
+//                    beginObservingPlayerItem(playerItem)
+//                    player.replaceCurrentItem(with: playerItem)
+//                }
+//                return Void()
+//
+//            case .getInfo:
+//                let playerItem = player.currentItem!
+//                let metadata = playerItem.asset.metadata
+//                return AudioBar.Action.Player.Info(
+//                    title: metadata.title,
+//                    artist: metadata.artist,
+//                    album: metadata.album,
+//                    artwork: metadata.artwork,
+//                    duration: playerItem.duration.timeInterval
+//                )
+//
+//            case .play:
+//                player.play()
+//                return Void()
+//
+//            case .pause:
+//                player.pause()
+//                return Void()
+//
+//            case .setCurrentTime(let time):
+//                player.seek(to: CMTime(timeInterval: time))
+//                return Void()
+//
+//            }
+//
+//        case .showAlert(text: let text, button: let button):
+//            let alertController = UIAlertController(title: text, message: nil, preferredStyle: .alert)
+//            alertController.addAction(UIAlertAction(title: button, style: .default, handler: nil))
+//            present(alertController, animated: true)
+//            return Void()
+//
+//        }
+
     }
 
     public func store<InputType>(_ store: Store, willReceive input: InputType) -> InputType.Payload where InputType : Input {
@@ -105,112 +205,6 @@ public final class AudioBarViewController: UIViewController, StoreDelegate {
         super.viewDidLayoutSubviews()
         volumeView.frame = audioRouteView.bounds
     }
-
-//    public func stateControllerDidUpdate(_ view: AudioBar.View) {
-//
-//        var playPauseButtonImage: UIImage {
-//            switch view.playPauseButtonImage {
-//            case .play:
-//                return loadImage(withName: "Play Button")
-//            case .pause:
-//                return loadImage(withName: "Pause Button")
-//            }
-//        }
-//
-//        playPauseButton.setImage(playPauseButtonImage, for: .normal)
-//        playPauseButton.isEnabled = view.isPlayPauseButtonEnabled
-//
-//        seekBackButton.isHidden = view.areSeekButtonsHidden
-//        seekBackButton.isEnabled = view.isSeekBackButtonEnabled
-//
-//        seekForwardButton.isHidden = view.areSeekButtonsHidden
-//        seekForwardButton.isEnabled = view.isSeekForwardButtonEnabled
-//
-//        timeLabel.text = view.playbackTime
-//
-//        loadingIndicator.isHidden = !view.isLoadingIndicatorVisible
-//
-//        remoteCommandCenter.togglePlayPauseCommand.isEnabled = view.isPlayPauseButtonEnabled
-//        remoteCommandCenter.playCommand.isEnabled = view.isPlayCommandEnabled
-//        remoteCommandCenter.pauseCommand.isEnabled = view.isPauseCommandEnabled
-//        remoteCommandCenter.skipForwardCommand.isEnabled = view.isSeekForwardButtonEnabled
-//        remoteCommandCenter.skipBackwardCommand.isEnabled = view.isSeekBackButtonEnabled
-//        remoteCommandCenter.skipForwardCommand.preferredIntervals = [.init(value: view.seekInterval)]
-//        remoteCommandCenter.skipBackwardCommand.preferredIntervals = [.init(value: view.seekInterval)]
-//
-//        var nowPlayingInfo: [String: Any] = [:]
-//        nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = view.playbackDuration
-//        nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = view.elapsedPlaybackTime
-//        if let trackName = view.trackName {
-//            nowPlayingInfo[MPMediaItemPropertyTitle] = trackName
-//        }
-//        if let artistName = view.artistName {
-//            nowPlayingInfo[MPMediaItemPropertyArtist] = artistName
-//        }
-//        if let albumName = view.albumName {
-//            nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = albumName
-//        }
-//        if let artworkData = view.artworkData, let artwork = UIImage(data: artworkData) {
-//            nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(image: artwork)
-//        }
-//        nowPlayingInfoCenter.nowPlayingInfo = nowPlayingInfo
-//
-//    }
-
-//    public func stateControllerDidRequest(_ action: AudioBar.Action) -> Any {
-//
-//        switch action {
-//
-//        case .player(let action):
-//
-//            switch action {
-//
-//            case .load(let url):
-//                if let playerItem = player.currentItem {
-//                    player.replaceCurrentItem(with: nil)
-//                    endObservingPlayerItem(playerItem)
-//                }
-//                if let url = url {
-//                    let playerItem = AVPlayerItem(url: url)
-//                    beginObservingPlayerItem(playerItem)
-//                    player.replaceCurrentItem(with: playerItem)
-//                }
-//                return Void()
-//
-//            case .getInfo:
-//                let playerItem = player.currentItem!
-//                let metadata = playerItem.asset.metadata
-//                return AudioBar.Action.Player.Info(
-//                    title: metadata.title,
-//                    artist: metadata.artist,
-//                    album: metadata.album,
-//                    artwork: metadata.artwork,
-//                    duration: playerItem.duration.timeInterval
-//                )
-//
-//            case .play:
-//                player.play()
-//                return Void()
-//
-//            case .pause:
-//                player.pause()
-//                return Void()
-//
-//            case .setCurrentTime(let time):
-//                player.seek(to: CMTime(timeInterval: time))
-//                return Void()
-//
-//            }
-//
-//        case .showAlert(text: let text, button: let button):
-//            let alertController = UIAlertController(title: text, message: nil, preferredStyle: .alert)
-//            alertController.addAction(UIAlertAction(title: button, style: .default, handler: nil))
-//            present(alertController, animated: true)
-//            return Void()
-//
-//        }
-//
-//    }
 
     private func configureCommandCenterCommands() {
         let view = store.view as! AudioBarView
