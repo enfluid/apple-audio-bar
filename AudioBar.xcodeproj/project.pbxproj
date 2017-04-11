@@ -28,7 +28,7 @@
 		91FC61671E93C2D4006003E1 /* ReadyToLoadURLStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FC61661E93C2D4006003E1 /* ReadyToLoadURLStateTests.swift */; };
 		91FC61691E93C2DD006003E1 /* WaitingForPlayerToLoadStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FC61681E93C2DD006003E1 /* WaitingForPlayerToLoadStateTests.swift */; };
 		91FC616B1E93C2E5006003E1 /* ReadyToPlayStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FC616A1E93C2E5006003E1 /* ReadyToPlayStateTests.swift */; };
-		91FC616D1E93C3EF006003E1 /* AudioBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FC616C1E93C3EF006003E1 /* AudioBarView.swift */; };
+		91FC616D1E93C3EF006003E1 /* PlayPauseButtonImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FC616C1E93C3EF006003E1 /* PlayPauseButtonImage.swift */; };
 		91FC616E1E93C4E9006003E1 /* Stateful.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F077E11E8D3D62000B5A61 /* Stateful.framework */; };
 		91FC616F1E93C4EA006003E1 /* Stateful.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 91F077E11E8D3D62000B5A61 /* Stateful.framework */; };
 		91FC61771E93C858006003E1 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91FC61761E93C858006003E1 /* Player.swift */; };
@@ -71,7 +71,7 @@
 		91FC61661E93C2D4006003E1 /* ReadyToLoadURLStateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadyToLoadURLStateTests.swift; sourceTree = "<group>"; };
 		91FC61681E93C2DD006003E1 /* WaitingForPlayerToLoadStateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaitingForPlayerToLoadStateTests.swift; sourceTree = "<group>"; };
 		91FC616A1E93C2E5006003E1 /* ReadyToPlayStateTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReadyToPlayStateTests.swift; sourceTree = "<group>"; };
-		91FC616C1E93C3EF006003E1 /* AudioBarView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioBarView.swift; sourceTree = "<group>"; };
+		91FC616C1E93C3EF006003E1 /* PlayPauseButtonImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlayPauseButtonImage.swift; sourceTree = "<group>"; };
 		91FC61761E93C858006003E1 /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		91FC61781E93CBB7006003E1 /* ShowAlertAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowAlertAction.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -164,7 +164,7 @@
 				91FC61711E93C4F9006003E1 /* States */,
 				91FC61701E93C4F4006003E1 /* Actions */,
 				91D8A1E51E94E5CA00D60A47 /* Helpers */,
-				91FC616C1E93C3EF006003E1 /* AudioBarView.swift */,
+				91FC616C1E93C3EF006003E1 /* PlayPauseButtonImage.swift */,
 				91FC61451E93C1B8006003E1 /* Info.plist */,
 				91FC61611E93C264006003E1 /* TestsInfo.plist */,
 			);
@@ -379,7 +379,7 @@
 			files = (
 				91FC61601E93C22D006003E1 /* ReadyToPlayState.swift in Sources */,
 				91FC615C1E93C214006003E1 /* ReadyToLoadURLState.swift in Sources */,
-				91FC616D1E93C3EF006003E1 /* AudioBarView.swift in Sources */,
+				91FC616D1E93C3EF006003E1 /* PlayPauseButtonImage.swift in Sources */,
 				91FC615E1E93C220006003E1 /* WaitingForPlayerToLoadState.swift in Sources */,
 				91FC61791E93CBB7006003E1 /* ShowAlertAction.swift in Sources */,
 				91FC61771E93C858006003E1 /* Player.swift in Sources */,

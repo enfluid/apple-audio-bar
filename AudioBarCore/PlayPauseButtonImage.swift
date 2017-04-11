@@ -20,31 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import Foundation
-import Stateful
-
-public struct AudioBarView: View {
-
-    public enum PlayPauseButtonImage {
-        case play
-        case pause
-    }
-
-    public let playPauseButtonImage: PlayPauseButtonImage
-    public let isPlayPauseButtonEnabled: Bool
-    public let areSeekButtonsHidden: Bool
-    public let playbackTime: String
-    public let isSeekBackButtonEnabled: Bool
-    public let isSeekForwardButtonEnabled: Bool
-    public let isLoadingIndicatorVisible: Bool
-    public let isPlayCommandEnabled: Bool
-    public let isPauseCommandEnabled: Bool
-    public let seekInterval: TimeInterval
-    public let playbackDuration: TimeInterval
-    public let elapsedPlaybackTime: TimeInterval
-    public let trackName: String?
-    public let artistName: String?
-    public let albumName: String?
-    public let artworkData: Data?
-
+public enum PlayPauseButtonImage {
+    case play
+    case pause
 }

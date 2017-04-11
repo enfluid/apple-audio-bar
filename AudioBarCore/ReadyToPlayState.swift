@@ -28,7 +28,91 @@ public struct ReadyToPlayState: State, Effectful {
     public var nextState: State?
     public let world = World.shared
 
-    static let seekInterval: TimeInterval = 15
+    private var isPlaying: Bool {
+        return world.receive(Player.Playing())
+    }
+
+    private var remainingTime: TimeInterval? {
+        guard elapsedPlaybackTime > 0 else {
+            return nil
+        }
+        let playbackDuration = world.receive(Player.PlaybackDuration())
+        return playbackDuration - elapsedPlaybackTime
+    }
+
+    // UI
+
+    public var playPauseButtonImage: PlayPauseButtonImage {
+        return isPlaying ? .pause : .play
+    }
+
+    public var isPlayPauseButtonEnabled: Bool {
+        guard let remainingTime = remainingTime else {
+            return true
+        }
+        return remainingTime > 0
+    }
+
+    public let areSeekButtonsHidden = false
+
+    public var playbackTime: String {
+        guard let remainingTime = remainingTime else {
+            return ""
+        }
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.minute, .second]
+        formatter.zeroFormattingBehavior = .pad
+        return "-" + formatter.string(from: remainingTime)!
+    }
+
+    public var isSeekBackButtonEnabled: Bool {
+        return elapsedPlaybackTime > 0
+    }
+
+    public var isSeekForwardButtonEnabled: Bool {
+        guard let remainingTime = remainingTime else {
+            return false
+        }
+        return remainingTime > 0
+    }
+
+    public var isLoadingIndicatorVisible: Bool {
+        return isPlaying && elapsedPlaybackTime == 0
+    }
+
+    public var isPlayCommandEnabled: Bool {
+        return !isPlaying && isPlayPauseButtonEnabled
+    }
+
+    public var isPauseCommandEnabled: Bool {
+        return isPlaying && isPlayPauseButtonEnabled
+    }
+
+    public let seekInterval: TimeInterval = 15
+
+    public var playbackDuration: TimeInterval {
+        return world.receive(Player.PlaybackDuration())
+    }
+
+    public var elapsedPlaybackTime: TimeInterval {
+        return world.receive(Player.ElapsedPlaybackTime()) ?? 0
+    }
+
+    public var trackName: String? {
+        return world.receive(Player.Metadata.TrackName())
+    }
+
+    public var artistName: String? {
+        return world.receive(Player.Metadata.ArtistName())
+    }
+
+    public var albumName: String? {
+        return world.receive(Player.Metadata.AlbumName())
+    }
+
+    public var artworkData: Data? {
+        return world.receive(Player.Metadata.ArtworkData())
+    }
 
 }
 
@@ -73,87 +157,15 @@ extension ReadyToPlayState {
 
     public func onUserDidTapSeekBackButton() {
         let oldElapsedPlaybackTime = world.receive(Player.ElapsedPlaybackTime())
-        let newElapsedPlaybackTime = max(0, oldElapsedPlaybackTime! - ReadyToPlayState.seekInterval)
+        let newElapsedPlaybackTime = max(0, oldElapsedPlaybackTime! - seekInterval)
         world.send(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: newElapsedPlaybackTime))
     }
 
     public func onUserDidTapSeekForwardButton() {
         let playbackDuration = world.receive(Player.PlaybackDuration())
         let oldElapsedPlaybackTime = world.receive(Player.ElapsedPlaybackTime())
-        let newElapsedPlaybackTime = min(playbackDuration, oldElapsedPlaybackTime! + ReadyToPlayState.seekInterval)
+        let newElapsedPlaybackTime = min(playbackDuration, oldElapsedPlaybackTime! + seekInterval)
         world.send(Player.ElapsedPlaybackTimeUpdate(elapsedPlaybackTime: newElapsedPlaybackTime))
-    }
-
-}
-
-extension ReadyToPlayState: Presentable {
-
-    public func present() -> View {
-
-        let isPlaying = world.receive(Player.Playing())
-        let elapsedPlaybackTime = world.receive(Player.ElapsedPlaybackTime())
-
-        var playPauseButtonImage: AudioBarView.PlayPauseButtonImage {
-            return isPlaying ? .pause : .play
-        }
-
-        var remainingTime: TimeInterval? {
-            guard let elapsedPlaybackTime = elapsedPlaybackTime else {
-                return nil
-            }
-            let playbackDuration = world.receive(Player.PlaybackDuration())
-            return playbackDuration - elapsedPlaybackTime
-        }
-
-        var remainingTimeText: String {
-            guard let remainingTime = remainingTime else {
-                return ""
-            }
-            let formatter = DateComponentsFormatter()
-            formatter.allowedUnits = [.minute, .second]
-            formatter.zeroFormattingBehavior = .pad
-            return "-" + formatter.string(from: remainingTime)!
-        }
-
-        var isPlayPauseButtonEnabled: Bool {
-            guard let remainingTime = remainingTime else {
-                return true
-            }
-            return remainingTime > 0
-        }
-
-        var isSeekBackButtonEnabled: Bool {
-            guard let elapsedPlaybackTime = elapsedPlaybackTime else {
-                return false
-            }
-            return elapsedPlaybackTime > 0
-        }
-
-        var isSeekForwardButtonEnabled: Bool {
-            guard let remainingTime = remainingTime else {
-                return false
-            }
-            return remainingTime > 0
-        }
-
-        return AudioBarView(
-            playPauseButtonImage: playPauseButtonImage,
-            isPlayPauseButtonEnabled: isPlayPauseButtonEnabled,
-            areSeekButtonsHidden: false,
-            playbackTime: remainingTimeText,
-            isSeekBackButtonEnabled: isSeekBackButtonEnabled,
-            isSeekForwardButtonEnabled: isSeekForwardButtonEnabled,
-            isLoadingIndicatorVisible: isPlaying && elapsedPlaybackTime == nil,
-            isPlayCommandEnabled: !isPlaying && isPlayPauseButtonEnabled,
-            isPauseCommandEnabled: isPlaying && isPlayPauseButtonEnabled,
-            seekInterval: ReadyToPlayState.seekInterval,
-            playbackDuration: world.receive(Player.PlaybackDuration()),
-            elapsedPlaybackTime: elapsedPlaybackTime ?? 0,
-            trackName: world.receive(Player.Metadata.TrackName()),
-            artistName: world.receive(Player.Metadata.ArtistName()),
-            albumName: world.receive(Player.Metadata.AlbumName()),
-            artworkData: world.receive(Player.Metadata.ArtworkData())
-        )
     }
 
 }

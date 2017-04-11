@@ -34,6 +34,23 @@ public struct ReadyToLoadURLState: State, Effectful {
         self.url = url
     }
 
+    public let playPauseButtonImage: PlayPauseButtonImage = .play
+    public let isPlayPauseButtonEnabled = true
+    public let areSeekButtonsHidden = true
+    public let playbackTime = ""
+    public let isSeekBackButtonEnabled = false
+    public let isSeekForwardButtonEnabled = false
+    public let isLoadingIndicatorVisible = false
+    public let isPlayCommandEnabled = true
+    public let isPauseCommandEnabled = false
+    public let seekInterval = 0
+    public let playbackDuration = 0
+    public let elapsedPlaybackTime = 0
+    public let trackName: String? = nil
+    public let artistName: String? = nil
+    public let albumName: String? = nil
+    public let artworkData: Data? = nil
+
 }
 
 extension ReadyToLoadURLState {
@@ -61,31 +78,6 @@ extension ReadyToLoadURLState {
     private mutating func play() {
         world.send(Player.Load(url: url))
         nextState = WaitingForPlayerToLoadState(url: url)
-    }
-
-}
-
-extension ReadyToLoadURLState: Presentable {
-
-    public func present() -> View {
-        return AudioBarView(
-            playPauseButtonImage: .play,
-            isPlayPauseButtonEnabled: true,
-            areSeekButtonsHidden: true,
-            playbackTime: "",
-            isSeekBackButtonEnabled: false,
-            isSeekForwardButtonEnabled: false,
-            isLoadingIndicatorVisible: false,
-            isPlayCommandEnabled: true,
-            isPauseCommandEnabled: false,
-            seekInterval: 0,
-            playbackDuration: 0,
-            elapsedPlaybackTime: 0,
-            trackName: nil,
-            artistName: nil,
-            albumName: nil,
-            artworkData: nil
-        )
     }
 
 }

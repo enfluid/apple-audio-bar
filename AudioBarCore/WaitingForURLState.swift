@@ -29,37 +29,28 @@ public struct WaitingForURLState: State {
 
     public init() {}
 
+    public let playPauseButtonImage: PlayPauseButtonImage = .play
+    public let isPlayPauseButtonEnabled = false
+    public let areSeekButtonsHidden = true
+    public let playbackTime = ""
+    public let isSeekBackButtonEnabled = false
+    public let isSeekForwardButtonEnabled = false
+    public let isLoadingIndicatorVisible = false
+    public let isPlayCommandEnabled = false
+    public let seekInterval = 0
+    public let playbackDuration = 0
+    public let elapsedPlaybackTime = 0
+    public let trackName: String? = nil
+    public let artistName: String? = nil
+    public let albumName: String? = nil
+    public let artworkData: Data? = nil
+
 }
 
 extension WaitingForURLState {
 
     public mutating func prepareToLoad(_ url: URL) {
         nextState = ReadyToLoadURLState(url: url)
-    }
-
-}
-
-extension WaitingForURLState: Presentable {
-
-    public func present() -> View {
-        return AudioBarView(
-            playPauseButtonImage: .play,
-            isPlayPauseButtonEnabled: false,
-            areSeekButtonsHidden: true,
-            playbackTime: "",
-            isSeekBackButtonEnabled: false,
-            isSeekForwardButtonEnabled: false,
-            isLoadingIndicatorVisible: false,
-            isPlayCommandEnabled: false,
-            isPauseCommandEnabled: false,
-            seekInterval: 0,
-            playbackDuration: 0,
-            elapsedPlaybackTime: 0,
-            trackName: nil,
-            artistName: nil,
-            albumName: nil,
-            artworkData: nil
-        )
     }
 
 }
