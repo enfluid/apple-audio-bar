@@ -87,23 +87,22 @@ extension WaitingForPlayerToLoadStateTests {
 
 extension WaitingForPlayerToLoadStateTests {
 
-    func testView() {
-        let view = state.present() as! AudioBarView
-        expect(view.playPauseButtonImage, equals: .pause)
-        expect(view.isPlayPauseButtonEnabled, equals: true)
-        expect(view.isPlayCommandEnabled, equals: false)
-        expect(view.isPauseCommandEnabled, equals: true)
-        expect(view.areSeekButtonsHidden, equals: true)
-        expect(view.playbackTime, equals: "")
-        expect(view.isSeekBackButtonEnabled, equals: false)
-        expect(view.isSeekForwardButtonEnabled, equals: false)
-        expect(view.isLoadingIndicatorVisible, equals: true)
-        expect(view.seekInterval, equals: 0)
-        expect(view.playbackDuration, equals: 0)
-        expect(view.elapsedPlaybackTime, equals: 0)
-        expect(view.trackName, equals: nil)
-        expect(view.artistName, equals: nil)
-        expect(view.albumName, equals: nil)
+    func testState() {
+        expect(state.playPauseButtonImage, equals: .pause)
+        expect(state.isPlayPauseButtonEnabled, equals: true)
+        expect(state.isPlayCommandEnabled, equals: false)
+        expect(state.isPauseCommandEnabled, equals: true)
+        expect(state.areSeekButtonsHidden, equals: true)
+        expect(state.playbackTime, equals: "")
+        expect(state.isSeekBackButtonEnabled, equals: false)
+        expect(state.isSeekForwardButtonEnabled, equals: false)
+        expect(state.isLoadingIndicatorVisible, equals: true)
+        expect(state.seekInterval, equals: 0)
+        expect(state.playbackDuration, equals: 0)
+        expect(state.elapsedPlaybackTime, equals: 0)
+        expect(state.trackName, equals: nil)
+        expect(state.artistName, equals: nil)
+        expect(state.albumName, equals: nil)
     }
 
 }

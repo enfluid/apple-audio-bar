@@ -37,6 +37,7 @@ public struct WaitingForURLState: State {
     public let isSeekForwardButtonEnabled = false
     public let isLoadingIndicatorVisible = false
     public let isPlayCommandEnabled = false
+    public let isPauseCommandEnabled = false
     public let seekInterval = 0
     public let playbackDuration = 0
     public let elapsedPlaybackTime = 0
