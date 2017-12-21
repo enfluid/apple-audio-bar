@@ -189,7 +189,8 @@ public struct AudioBar: Program {
             state = .readyToLoadURL(url)
             perform(.showAlert(text: "Unable to load media", button: "OK"))
         }
-        return .success()
+        let result: Result<Success, AudioBar.Failure> = Result.success(Success())
+        return result
     }
 
     public static func view(for state: State) -> Result<View, Failure> {
